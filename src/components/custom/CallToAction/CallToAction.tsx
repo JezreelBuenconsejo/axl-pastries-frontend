@@ -1,8 +1,7 @@
 import React from "react";
 import Phone from "~/public/assets/images/cta/phone.png";
 
-type CallToActionProps = {};
-const CallToAction: React.FC<CallToActionProps> = (props) => {
+const CallToAction: React.FC = () => {
   return (
     <section className="flex my-24 mx-auto max-w-[1440px] w-full px-5 lg:px-20">
       <div className="flex flex-col md:flex-row relative justify-between px-11 py-14 w-full rounded-2xl bg-gradient-to-r from-[#ECD9FF] via-[#BCF7FF] to-[#ECD9FF]">

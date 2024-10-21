@@ -11,15 +11,11 @@ export type BurgerMenuProps = {
 const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [menuHeight, setMenuHeight] = useState<number>(0);
-	const [mobileNotifCenter, setMobileNotifCenter] = useState(false);
 
 	useEffect(() => {
 		const handleResize = () => {
 			if (menuRef.current && menuRef.current.offsetHeight > 0) {
 				setMenuHeight(menuRef.current.offsetHeight);
-			}
-			if (!props.isOpen) {
-				setTimeout(() => setMobileNotifCenter(false), 500);
 			}
 		};
 		handleResize();

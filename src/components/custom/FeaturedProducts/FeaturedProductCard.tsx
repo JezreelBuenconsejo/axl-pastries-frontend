@@ -20,7 +20,7 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = (props) => {
   return (
     <div className="rounded-lg shadow-md p-6 w-full md:w-[293px] h-[369px] flex flex-col justify-between">
       <div className="flex justify-center w-fit mx-auto">
-        <img src={props.img} alt="" />
+        <img src={props.img} alt="" width={undefined} />
       </div>
       <span className="text-[#878787] pointer-events-none select-none">{props.category}</span>
       <h3 className="text-2xl font-bold leading-7 pointer-events-none select-none">{props.name}</h3>

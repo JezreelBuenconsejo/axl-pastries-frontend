@@ -16,8 +16,7 @@ import { Button } from "@/components/ui/button";
 const formSchema = z.object({
 	message: z.string().min(1, { message: "Required" })
 });
-type FooterProps = {};
-const Footer: React.FC<FooterProps> = props => {
+const Footer: React.FC = () => {
 	const d = new Date();
 	const year = d.getFullYear();
 	const logoRef = useRef<HTMLDivElement>(null);

@@ -2,8 +2,8 @@ import React from "react";
 
 type ValuesCardProps = {
   title: string;
-  description?: string | any;
-  img?: any;
+  description?: string | string[];
+  img?: React.ReactNode;
 };
 const ValuesCard: React.FC<ValuesCardProps> = (props) => {
   return (

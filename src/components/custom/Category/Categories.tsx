@@ -4,8 +4,7 @@ import { CategoriesList } from "@/constants/categories";
 import { v4 } from "uuid";
 import { cn } from "@/lib/utils";
 
-type CategoriesProps = {};
-const Categories: React.FC<CategoriesProps> = props => {
+const Categories: React.FC = () => {
 	return (
 		<section className="my-24 flex flex-col justify-center px-5 lg:px-20 max-w-[1440px]">
 			<div className="mt-16 grid gap-7 md:grid-cols-2">
