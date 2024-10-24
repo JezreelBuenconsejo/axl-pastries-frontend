@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Navbar } from "@/components/common/nav/Navbar";
-import { MenuList } from "@/constants/menu";
-import Footer from "@/components/common/footer/Footer";
 import favicon from "~/public/favicon.ico";
 
 export const metadata: Metadata = {
@@ -20,12 +17,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
-        <Navbar menu={MenuList} />
-        <main className="flex flex-col items-center justify-between overflow-x-hidden">
-          {children}
-        </main>
-        <Footer />
+      <body className={`antialiased overflow-x-hidden`}>
+        {children}
       </body>
     </html>
   );
