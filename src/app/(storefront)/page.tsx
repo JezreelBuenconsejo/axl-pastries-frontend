@@ -1,3 +1,6 @@
+"use client";
+
+import AxlPastriesClient from "@/client/client";
 import ContentWrapper from "@/components/common/content-wrapper/ContentWrapper";
 import { Certified, GoodPrice, HighQuality } from "@/components/common/icons/icons";
 import CallToAction from "@/components/custom/CallToAction/CallToAction";
@@ -5,11 +8,24 @@ import Categories from "@/components/custom/Category/Categories";
 import FeaturedProducts from "@/components/custom/FeaturedProducts/FeaturedProducts";
 import Hero from "@/components/custom/Hero/Hero";
 import ValuesCard from "@/components/custom/ValuesCard/ValuesCard";
-import { StaticProductList } from "@/constants/sampleProducts";
+import { Cake } from "@/types/cake";
+import { useEffect, useState } from "react";
 import heroImg from "~/public/assets/images/hero/Hero.jpg";
 import heroBG from "~/public/assets/images/hero/heroBG.png";
 
 export default function Home() {
+  const [products, setProducts] = useState<Cake[] | []>([]);
+  const fetchCakes = async () => {
+    try {
+      const cakes = await AxlPastriesClient.getCakes();
+      setProducts(cakes);
+    } catch (error) {
+      console.error("Failed to fetch cakes:", error);
+    }
+  };
+  useEffect(() => {
+    fetchCakes();
+  },[])
   return (
     <>
       <Hero
@@ -44,7 +60,7 @@ export default function Home() {
       </ContentWrapper>
 	  <CallToAction/>
 	  
-	  <FeaturedProducts products={StaticProductList}/>
+	  <FeaturedProducts products={products}/>
     </>
   );
 }

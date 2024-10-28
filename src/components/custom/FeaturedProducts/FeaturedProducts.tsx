@@ -1,24 +1,24 @@
 "use client";
 import React from "react";
-import FeaturedProductCard, { ProductList } from "./FeaturedProductCard";
+import FeaturedProductCard from "./FeaturedProductCard";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Cake } from "@/types/cake";
 
 type FeaturedProductsProps = {
-	products: ProductList[];
+	products: Cake[];
 };
 const FeaturedProducts: React.FC<FeaturedProductsProps> = props => {
 	return (
-		<section className="mx-auto my-24  flex w-full max-w-[1440px] flex-col px-5 lg:px-20">
+		<section className="mx-auto my-24  flex w-full max-w-[1440px] flex-col pl-5 lg:px-20">
 			<Carousel>
 				<CarouselContent>
 					{React.Children.toArray(
 						props.products.map(item => (
-							<CarouselItem  className="basis-[350px]">
+							<CarouselItem  className="px-5 sm:basis-[250px] md:basis-[350px]">
 								<FeaturedProductCard
-									img={item.img}
-									category={item.category}
+									img={item.image_url}
+									category={"Cake"}
 									name={item.name}
-									weight={item.weight}
 									price={item.price}
 								/>
 							</CarouselItem>

@@ -35,7 +35,8 @@ const config: Config = {
         },
       },
       borderRadius: {
-				landingPage: "25% 60% 70% 25% / 61% 38% 55% 25%"
+				landingPage: "25% 60% 70% 25% / 61% 38% 55% 25%",
+        cakeShape: "60% 40% 70% 30% / 30% 60% 40% 70%"
       },
 
       fontFamily: {
