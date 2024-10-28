@@ -22,7 +22,7 @@ interface EnvironmentUrls {
   };
   
   // Endpoints
-  export const ADMIN_LOGIN = `${getApiRoot()}/auth/login`;
+  export const ADMIN_LOGIN = `${getApiRoot()}/admin/login`;
   export const CAKES_ENDPOINT = `${getApiRoot()}/cakes`;
   export const ADD_CAKE_ENDPOINT = `${getApiRoot()}/admin/cakes`;
   export const UPDATE_CAKE_ENDPOINT = `${getApiRoot()}/admin/cakes/update`;
