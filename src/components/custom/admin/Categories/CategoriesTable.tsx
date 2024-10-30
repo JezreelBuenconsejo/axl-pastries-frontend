@@ -13,47 +13,41 @@ import {
 } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import UpdateCakeDialog from "./UpdateCakeDialog";
-import { Cake } from "@/types/cake";
-import DeleteCakeDialog from "./DeleteCakeDialog";
 import { FaSpinner } from "react-icons/fa";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { TablePagination } from "@/components/common/data-table/TablePagination";
 import { Category } from "@/types/categories";
+import DeleteCakeDialog from "../Cake/DeleteCakeDialog";
+import UpdateCategoryDialog from "./UpdateCategoryDialog";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	isTableLoading: boolean;
 
-	// For Updating Cake Details
-	cakeDetails: Cake;
-	setCakeDetails: React.Dispatch<React.SetStateAction<Cake>>;
-	setFeaturedImage: React.Dispatch<React.SetStateAction<File | null>>;
-	setImages: React.Dispatch<React.SetStateAction<File[]>>;
-	handleUpdateCake: (id: number) => void;
-	categories: Category[];
+	// For Updating Category Details
+	categoryDetails: Category;
+	setCategoryDetails: React.Dispatch<React.SetStateAction<Category>>;
+	handleUpdateCategory: (id: number) => void;
 
-	// For Deleting Cake
-	handleDeleteCake: (id: number) => void;
+	// For Deleting Category
+	handleDeleteCategory: (id: number) => void;
 
 	// For Both
-	isLoading: boolean;
+	isDialogLoading: boolean;
 	dialogCloseRef: React.RefObject<HTMLButtonElement>;
 }
 
-export function CakeDataTable<TData, TValue>({
+export function CategoryDataTable<TData, TValue>({
 	columns,
 	data,
-	cakeDetails,
-	setCakeDetails,
-	setFeaturedImage,
-	setImages,
-	handleUpdateCake,
-	isLoading,
+	categoryDetails,
+	setCategoryDetails,
+	handleUpdateCategory,
+	isTableLoading,
+	isDialogLoading,
 	dialogCloseRef,
-	handleDeleteCake,
-	categories
+	handleDeleteCategory
 }: DataTableProps<TData, TValue>) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -73,14 +67,6 @@ export function CakeDataTable<TData, TValue>({
 	});
 	return (
 		<>
-			<div className="flex items-center py-4">
-				<Input
-					placeholder="Search name..."
-					value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-					onChange={event => table.getColumn("name")?.setFilterValue(event.target.value)}
-					className="max-w-sm"
-				/>
-			</div>
 			<div className="rounded-md border">
 				<Table>
 					<TableHeader>
@@ -111,22 +97,19 @@ export function CakeDataTable<TData, TValue>({
 									<TableCell>
 										<div className="flex flex-col gap-2">
 											<DeleteCakeDialog
-												handleDeleteCake={handleDeleteCake}
+												handleDeleteCake={handleDeleteCategory}
 												id={row.getValue("id")}
 												dialogCloseRef={dialogCloseRef}
-												isLoading={isLoading}
+												isLoading={isDialogLoading}
 											/>
-											<UpdateCakeDialog
-												cakeDetails={cakeDetails}
-												handleUpdateCake={handleUpdateCake}
-												setCakeDetails={setCakeDetails}
-												setFeaturedImage={setFeaturedImage}
-												isLoading={isLoading}
+											<UpdateCategoryDialog
+												categoryDetails={categoryDetails}
+												handleUpdateCategory={handleUpdateCategory}
+												setCategoryDetails={setCategoryDetails}
+												isLoading={isDialogLoading}
 												dialogCloseRef={dialogCloseRef}
 												id={row.getValue("id")}
-												existingCakeDetails={row.original as Cake}
-												categories={categories}
-												setImages={setImages}
+												existingCategoryDetails={row.original as Category}
 											/>
 										</div>
 									</TableCell>
@@ -134,8 +117,12 @@ export function CakeDataTable<TData, TValue>({
 							))
 						) : (
 							<TableRow>
-								<TableCell colSpan={columns.length} className="h-24 text-center">
-									{isLoading ? <FaSpinner className="mx-auto animate-spin" /> : "No Cake Found"}
+								<TableCell colSpan={columns.length + 1} className="h-24 text-center">
+									{isTableLoading ? (
+										<FaSpinner className="mx-auto animate-spin" />
+									) : (
+										"No Category Found"
+									)}
 								</TableCell>
 							</TableRow>
 						)}

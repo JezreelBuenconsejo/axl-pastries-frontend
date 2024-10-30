@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const Categories: React.FC = () => {
 	return (
-		<section className="my-24 flex flex-col justify-center px-5 lg:px-20 max-w-[1440px]">
+		<section className="my-24 flex max-w-[1440px] flex-col justify-center px-5 lg:px-20">
 			<div className="mt-16 grid gap-7 md:grid-cols-2">
 				{CategoriesList.map((category, index) => (
 					<div key={v4()} className={cn(index === 0 && "md:-mt-8", index % 2 === 0 && "md:-mt-16")}>

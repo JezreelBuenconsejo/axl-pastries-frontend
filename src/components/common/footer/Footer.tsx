@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
 		console.log(values);
 	}
 	return (
-		<footer className="bg-gradient-to-r from-main-lightPurple  via-main-skyBlue to-main-lightPurple p-6 px-5 lg:px-20">
+		<footer className="bg-gradient-to-r from-main-lightPurple via-main-skyBlue to-main-lightPurple p-6 px-5 lg:px-20">
 			<div className="mx-auto flex max-w-[1440px] flex-col justify-between">
 				<div className="flex flex-col justify-between md:flex-row md:items-center md:gap-2">
 					<div className="flex w-fit items-center justify-center gap-6" id="logo" ref={logoRef}>
@@ -89,7 +89,7 @@ const Footer: React.FC = () => {
 							<Link href="/returns-and-product-shortages">Returns and Product Shortages</Link>
 						</li>
 					</ul>
-					<ul className="mt-2 flex  flex-1 flex-col gap-6 font-montserrat text-base font-medium">
+					<ul className="mt-2 flex flex-1 flex-col gap-6 font-montserrat text-base font-medium">
 						<li className="font-bold">Assortment</li>
 						<li>
 							<Link href="/cooperation">Cakes</Link>
@@ -104,7 +104,7 @@ const Footer: React.FC = () => {
 							<Link href="/returns-and-product-shortages">Muffins</Link>
 						</li>
 					</ul>
-					<ul className="mt-2 flex  flex-1 flex-col gap-6 font-montserrat text-base font-medium">
+					<ul className="mt-2 flex flex-1 flex-col gap-6 font-montserrat text-base font-medium">
 						<li className="font-bold">Contacts</li>
 						<li>
 							Address of facilities:{" "}
@@ -118,7 +118,7 @@ const Footer: React.FC = () => {
 							<Link href={"tel:09751152891"}>+63 975 115 2891</Link>
 						</li>
 					</ul>
-					<div className="mt-2 flex  flex-1 flex-col gap-6 font-montserrat text-base font-medium">
+					<div className="mt-2 flex flex-1 flex-col gap-6 font-montserrat text-base font-medium">
 						<span className="font-bold">Feedback to us:</span>
 						<Form {...form}>
 							<form onSubmit={form.handleSubmit(onSubmit)}>

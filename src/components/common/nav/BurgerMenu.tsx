@@ -28,7 +28,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
 		<div
 			ref={menuRef}
 			className={cn(
-				"z-1 gap- absolute left-0 flex min-h-fit  w-full flex-col justify-between bg-white px-6  py-2 transition-all duration-500 ease-in md:hidden md:pt-4 lg:hidden"
+				"z-1 gap- absolute left-0 flex min-h-fit w-full flex-col justify-between bg-white px-6 py-2 transition-all duration-500 ease-in md:hidden md:pt-4 lg:hidden"
 			)}
 			style={{ top: `${props.isOpen ? "100%" : `-${menuHeight}px`}` }}
 		>

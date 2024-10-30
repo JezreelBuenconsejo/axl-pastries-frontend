@@ -14,7 +14,7 @@ const CategoryCard: React.FC<CategoryCardProps> = props => {
 	return (
 		<div className="mb-10 max-w-[368px]">
 			<div className="relative">
-				<img src={CategoryBG.src} alt="Background" className="h-[6.125rem] w-auto" width={undefined} />
+				<img src={CategoryBG.src} alt="Background" className="h-[6.125rem] w-auto" />
 				{props.img && (
 					<img
 						src={props.img}
@@ -36,7 +36,7 @@ const CategoryCard: React.FC<CategoryCardProps> = props => {
 						href={props.link}
 					>
 						<span>Learn More</span>
-						<ChevronRight className="stroke-main-purple transition-all duration-150  group-hover:stroke-white" />
+						<ChevronRight className="stroke-main-purple transition-all duration-150 group-hover:stroke-white" />
 					</Link>
 				</div>
 			</div>

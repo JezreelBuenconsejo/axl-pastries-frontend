@@ -2,31 +2,26 @@ import React from "react";
 import Phone from "~/public/assets/images/cta/phone.png";
 
 const CallToAction: React.FC = () => {
-  return (
-    <section className="flex my-24 mx-auto max-w-[1440px] w-full px-5 lg:px-20">
-      <div className="flex flex-col md:flex-row relative justify-between px-11 py-14 w-full rounded-2xl bg-gradient-to-r from-[#ECD9FF] via-[#BCF7FF] to-[#ECD9FF]">
-        <div className="flex flex-col gap-6 md:max-w-[271px] xl:max-w-none mx-auto md:mx-0 text-center md:text-start">
-          <h3 className="font-bold text-2xl lg:text-3xl leading-7">
-            Order by phone number
-          </h3>
-          <a
-            href="tel:9751152891"
-            className="font-medium text-base leading-5 hover:text-main-purple"
-          >
-            (+63)975 115 2891
-          </a>
-        </div>
-        <img
-          alt="Phone"
-          src={Phone.src}
-          className="md:absolute max-w-[363px] h-auto w-full md:bottom-1/2 mx-auto md:translate-y-[55%] md:left-1/2 md:-translate-x-1/2"
-        />
-        <button className="h-fit my-auto rounded-xl px-10 py-3.5 text-white font-semibold text-xl leading-normal bg-main-purple hover:bg-main-lightblue hover:text-black hover:border hover:border-black transition-all duration-300">
-          Order Now!
-        </button>
-      </div>
-    </section>
-  );
+	return (
+		<section className="mx-auto my-24 flex w-full max-w-[1440px] px-5 lg:px-20">
+			<div className="relative flex w-full flex-col justify-between rounded-2xl bg-gradient-to-r from-[#ECD9FF] via-[#BCF7FF] to-[#ECD9FF] px-11 py-14 md:flex-row">
+				<div className="mx-auto flex flex-col gap-6 text-center md:mx-0 md:max-w-[271px] md:text-start xl:max-w-none">
+					<h3 className="text-2xl font-bold leading-7 lg:text-3xl">Order by phone number</h3>
+					<a href="tel:9751152891" className="text-base font-medium leading-5 hover:text-main-purple">
+						(+63)975 115 2891
+					</a>
+				</div>
+				<img
+					alt="Phone"
+					src={Phone.src}
+					className="mx-auto h-auto w-full max-w-[363px] md:absolute md:bottom-1/2 md:left-1/2 md:-translate-x-1/2 md:translate-y-[55%]"
+				/>
+				<button className="hover:bg-main-lightblue my-auto h-fit rounded-xl bg-main-purple px-10 py-3.5 text-xl font-semibold leading-normal text-white transition-all duration-300 hover:border hover:border-black hover:text-black">
+					Order Now!
+				</button>
+			</div>
+		</section>
+	);
 };
 
 export default CallToAction;

@@ -4,7 +4,12 @@ import { useState } from "react";
 import { OrderIcon } from "../icons/icons";
 import { BurgerIcon } from "../icons/buttons";
 import { Logo } from "../icons/logo";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
+import {
+	NavigationMenu,
+	NavigationMenuItem,
+	NavigationMenuLink,
+	NavigationMenuList
+} from "@/components/ui/navigation-menu";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BurgerMenu from "./BurgerMenu";
@@ -21,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = props => {
 	return (
 		<section className="relative z-[2] font-montserrat">
 			<nav className="relative z-10 mx-auto flex max-w-[1440px] justify-between bg-white p-6 px-5 lg:px-20">
-				<Link className="flex w-fit items-center justify-center gap-3 md:gap-6 " href={"/"}>
+				<Link className="flex w-fit items-center justify-center gap-3 md:gap-6" href={"/"}>
 					<Logo />
 					<span className="mt-2 bg-gradient-to-r from-main-purple to-main-lightBlue bg-clip-text font-signika text-xl font-bold text-transparent sm:text-3xl">
 						Axl{"'"}s Pastries
@@ -33,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = props => {
 							{props.menu.map(menu => (
 								<NavigationMenuItem
 									key={menu.list}
-									className="scale-100 transition-all duration-200 hover:scale-110 "
+									className="scale-100 transition-all duration-200 hover:scale-110"
 								>
 									<Link href={menu.path} legacyBehavior passHref>
 										<NavigationMenuLink className="border-b-0 py-1 transition-all duration-200 hover:scale-125 hover:text-main-purple">
