@@ -1,7 +1,7 @@
 import { Cake } from "@/types/cake";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 export const cakeColumns: ColumnDef<Cake>[] = [
