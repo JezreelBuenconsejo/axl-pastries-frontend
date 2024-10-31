@@ -13,7 +13,6 @@ import {
 } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import UpdateCakeDialog from "./UpdateCakeDialog";
 import { Cake } from "@/types/cake";
 import DeleteCakeDialog from "./DeleteCakeDialog";
 import { FaSpinner } from "react-icons/fa";
@@ -21,6 +20,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { TablePagination } from "@/components/common/data-table/TablePagination";
 import { Category } from "@/types/categories";
+import CakeDialog from "./CakeDialog";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -116,17 +116,18 @@ export function CakeDataTable<TData, TValue>({
 												dialogCloseRef={dialogCloseRef}
 												isLoading={isLoading}
 											/>
-											<UpdateCakeDialog
+											<CakeDialog
 												cakeDetails={cakeDetails}
-												handleUpdateCake={handleUpdateCake}
 												setCakeDetails={setCakeDetails}
 												setFeaturedImage={setFeaturedImage}
+												setImages={setImages}
+												handleSubmit={async () => handleUpdateCake(row.getValue("id"))}
 												isLoading={isLoading}
 												dialogCloseRef={dialogCloseRef}
-												id={row.getValue("id")}
-												existingCakeDetails={row.original as Cake}
 												categories={categories}
-												setImages={setImages}
+												existingCakeDetails={row.original as Cake}
+												mode="update"
+												triggerLabel="Update"
 											/>
 										</div>
 									</TableCell>

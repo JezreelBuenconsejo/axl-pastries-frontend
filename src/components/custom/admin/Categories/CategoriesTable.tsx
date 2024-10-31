@@ -18,7 +18,7 @@ import { useState } from "react";
 import { TablePagination } from "@/components/common/data-table/TablePagination";
 import { Category } from "@/types/categories";
 import DeleteCakeDialog from "../Cake/DeleteCakeDialog";
-import UpdateCategoryDialog from "./UpdateCategoryDialog";
+import CategoryDialog from "./CategoryDialog";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -102,14 +102,16 @@ export function CategoryDataTable<TData, TValue>({
 												dialogCloseRef={dialogCloseRef}
 												isLoading={isDialogLoading}
 											/>
-											<UpdateCategoryDialog
+											<CategoryDialog
 												categoryDetails={categoryDetails}
-												handleUpdateCategory={handleUpdateCategory}
 												setCategoryDetails={setCategoryDetails}
+												handleAction={() => handleUpdateCategory(categoryDetails.id)}
+												existingCategoryDetails={row.original as Category}
 												isLoading={isDialogLoading}
 												dialogCloseRef={dialogCloseRef}
-												id={row.getValue("id")}
-												existingCategoryDetails={row.original as Category}
+												dialogType="Update"
+												triggerClassName="text-yellow-500"
+												dialogTriggerLabel="Update"
 											/>
 										</div>
 									</TableCell>

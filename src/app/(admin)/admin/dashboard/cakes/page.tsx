@@ -3,10 +3,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import AxlPastriesClient from "@/client/client";
 import { Cake } from "@/types/cake";
-import AddCakeDialog from "@/components/custom/admin/Cake/AddCakeDialog";
 import { CakeDataTable } from "@/components/custom/admin/Cake/CakeTable";
 import { cakeColumns } from "@/components/custom/admin/Cake/CakeColumns";
 import { useCategories } from "@/hooks/useCategories";
+import CakeDialog from "@/components/custom/admin/Cake/CakeDialog";
 
 export default function CakesPage() {
 	const [cakes, setCakes] = useState<Cake[]>([]);
@@ -23,114 +23,81 @@ export default function CakesPage() {
 	const [images, setImages] = useState<File[]>([]);
 	const dialogCloseRef = useRef<HTMLButtonElement>(null);
 
-	// Fetch cakes on page load
 	useEffect(() => {
-		async function fetchCakes() {
-			setIsLoading(true);
-			try {
-				const data = await AxlPastriesClient.getCakes();
-				console.log(data);
-				setCakes(data);
-				setIsLoading(false);
-			} catch (error) {
-				console.error("Failed to fetch cakes", error);
-				setIsLoading(false);
-			}
-		}
-		fetchCakes();
+		refreshCakes();
 	}, []);
 
-	// Handle form submission for adding a new cake
-	const handleAddCake = async () => {
-		setIsLoading(true);
+	const createFormData = () => {
 		const formData = new FormData();
 		formData.append("name", cakeDetails.name);
 		formData.append("flavor", cakeDetails.flavor);
 		formData.append("base_price", cakeDetails.base_price.toString());
 		formData.append("category_id", cakeDetails.category_id.toString());
+		if (cakeDetails.description) formData.append("description", cakeDetails.description);
+		if (featuredImage) formData.append("featured_image", featuredImage);
+		images.forEach(image => formData.append("images", image));
+		return formData;
+	};
 
-		if (cakeDetails.description) {
-			formData.append("description", cakeDetails.description);
-		}
-		if (featuredImage) {
-			formData.append("featured_image", featuredImage);
-		}
-		if (images.length > 0) {
-			for (const image of images) {
-				formData.append("images", image);
-			}
-		}
+	const resetCakeForm = () => {
+		setCakeDetails({
+			name: "",
+			flavor: "",
+			description: "",
+			base_price: 0,
+			category_id: categories[0]?.id ?? 0
+		});
+		setFeaturedImage(null);
+		dialogCloseRef.current?.click();
+	};
 
+	const refreshCakes = async () => {
+		setIsLoading(true);
 		try {
-			await AxlPastriesClient.addCake(formData);
-			const updatedCakes = await AxlPastriesClient.getCakes();
-			setCakes(updatedCakes);
-			setCakeDetails({
-				name: "",
-				flavor: "",
-				description: "",
-				base_price: 0,
-				category_id: categories[0]?.id ?? 0
-			});
-			setFeaturedImage(null);
-			dialogCloseRef.current?.click();
-			setIsLoading(false);
+			const data = await AxlPastriesClient.getCakes();
+			setCakes(data);
 		} catch (error) {
-			console.error("Failed to add cake", error);
+			console.error("Failed to fetch cakes", error);
+		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	// Handle form submission for updating an existing cake
-	async function handleUpdateCake(id: number) {
+	const handleAddCake = async () => {
 		setIsLoading(true);
-		const formData = new FormData();
-		formData.append("name", cakeDetails.name);
-		formData.append("flavor", cakeDetails.flavor);
-		formData.append("base_price", cakeDetails.base_price.toString());
-		formData.append("category_id", cakeDetails.category_id.toString());
-		if (cakeDetails.description) {
-			formData.append("description", cakeDetails.description);
-		}
-		if (featuredImage) {
-			formData.append("featured_image", featuredImage);
-		}
-
-		if (images.length > 0) {
-			for (const element of images) {
-				formData.append("images", element);
-			}
-		}
 		try {
-			await AxlPastriesClient.updateCake(id, formData);
-			const updatedCakes = await AxlPastriesClient.getCakes();
-			setCakes(updatedCakes);
-			setCakeDetails({
-				name: "",
-				flavor: "",
-				description: "",
-				base_price: 0,
-				category_id: categories[0]?.id ?? 0
-			});
-			setFeaturedImage(null);
-			dialogCloseRef.current?.click();
+			await AxlPastriesClient.addCake(createFormData());
+			await refreshCakes();
+			resetCakeForm();
+		} catch (error) {
+			console.error("Failed to add cake", error);
+		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const handleUpdateCake = async (id: number) => {
+		setIsLoading(true);
+		try {
+			await AxlPastriesClient.updateCake(id, createFormData());
+			await refreshCakes();
+			resetCakeForm();
 		} catch (error) {
 			console.error("Failed to update cake", error);
+		} finally {
 			setIsLoading(false);
 		}
-	}
+	};
 
 	const handleDeleteCake = async (id: number) => {
+		setIsLoading(true);
 		try {
-			setIsLoading(true);
 			await AxlPastriesClient.deleteCake(id);
-			const updatedCakes = await AxlPastriesClient.getCakes();
-			setCakes(updatedCakes);
-			dialogCloseRef.current?.click();
-			setIsLoading(false);
+			await refreshCakes();
+			resetCakeForm();
 		} catch (error) {
 			console.error("Failed to delete cake", error);
+		} finally {
 			setIsLoading(false);
 		}
 	};
@@ -139,20 +106,22 @@ export default function CakesPage() {
 		<div>
 			<div className="mb-6 flex flex-wrap items-center justify-between gap-y-4">
 				<h1 className="text-3xl font-bold">Cakes</h1>
-				<AddCakeDialog
+				<CakeDialog
 					cakeDetails={cakeDetails}
-					handleAddCake={handleAddCake}
 					setCakeDetails={setCakeDetails}
 					setFeaturedImage={setFeaturedImage}
 					setImages={setImages}
+					handleSubmit={handleAddCake}
 					isLoading={isLoading}
 					dialogCloseRef={dialogCloseRef}
 					categories={categories}
+					mode="add"
+					triggerLabel="Add New Cake"
 				/>
 			</div>
 			<CakeDataTable
 				columns={cakeColumns}
-				data={cakes ?? []}
+				data={cakes}
 				cakeDetails={cakeDetails}
 				setCakeDetails={setCakeDetails}
 				setFeaturedImage={setFeaturedImage}

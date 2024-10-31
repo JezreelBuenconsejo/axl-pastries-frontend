@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Category } from "@/types/categories";
 import { CategoryDataTable } from "@/components/custom/admin/Categories/CategoriesTable";
-import AddCategoryDialog from "@/components/custom/admin/Categories/AddCategoryDialog";
 import { useCategories } from "@/hooks/useCategories";
+import CategoryDialog from "@/components/custom/admin/Categories/CategoryDialog";
 
 export default function CategoriesPage() {
 	const { categories, fetchCategories, categoriesLoading } = useCategories();
@@ -25,7 +25,6 @@ export default function CategoriesPage() {
 		const categoryData = {
 			name: categoryDetails.name
 		};
-
 		try {
 			await AxlPastriesClient.addCategory(categoryData);
 			fetchCategories();
@@ -94,12 +93,14 @@ export default function CategoriesPage() {
 		<div>
 			<div className="mb-6 flex flex-wrap items-center justify-between gap-y-4">
 				<h1 className="text-3xl font-bold">Categories</h1>
-				<AddCategoryDialog
+				<CategoryDialog
 					categoryDetails={categoryDetails}
-					handleAddCategory={handleAddCategory}
 					setCategoryDetails={setCategoryDetails}
+					handleAction={handleAddCategory}
 					isLoading={isDialogLoading}
 					dialogCloseRef={dialogCloseRef}
+					dialogType="Add"
+					dialogTriggerLabel="Add New Category"
 				/>
 			</div>
 			<CategoryDataTable
