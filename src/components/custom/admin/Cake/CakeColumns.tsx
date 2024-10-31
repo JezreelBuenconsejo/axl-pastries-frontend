@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { formatDateTime } from "@/lib/utils";
 
 export const cakeColumns: ColumnDef<Cake>[] = [
 	{
@@ -11,7 +12,7 @@ export const cakeColumns: ColumnDef<Cake>[] = [
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
 					ID
-					<ArrowUpDown className="ml-2 h-4 w-4" />
+					<ArrowUpDown className="h-4 w-4" />
 				</Button>
 			);
 		}
@@ -59,7 +60,7 @@ export const cakeColumns: ColumnDef<Cake>[] = [
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
 					Category
-					<ArrowUpDown className="ml-2 h-4 w-4" />
+					<ArrowUpDown className="h-4 w-4" />
 				</Button>
 			);
 		}
@@ -78,9 +79,37 @@ export const cakeColumns: ColumnDef<Cake>[] = [
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
 					Base Price
-					<ArrowUpDown className="ml-2 h-4 w-4" />
+					<ArrowUpDown className="h-4 w-4" />
 				</Button>
 			);
+		}
+	},
+	{
+		accessorKey: "created_at",
+		header: ({ column }) => {
+			return (
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+					Created
+					<ArrowUpDown className="h-4 w-4" />
+				</Button>
+			);
+		},
+		cell: ({ row }) => {
+			return <div className=" w-20">{formatDateTime(row.getValue("created_at"))}</div>;
+		}
+	},
+	{
+		accessorKey: "updated_at",
+		header: ({ column }) => {
+			return (
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+					Updated
+					<ArrowUpDown className="h-4 w-4" />
+				</Button>
+			);
+		},
+		cell: ({ row }) => {
+			return <div className=" w-20">{formatDateTime(row.getValue("updated_at"))}</div>;
 		}
 	}
 ];

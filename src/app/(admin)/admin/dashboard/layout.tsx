@@ -30,8 +30,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 	}
 	return (
 		<div className="flex min-h-screen w-full">
-			<aside className="hidden w-48 bg-main-lightPurple p-4 text-main-purple md:block">
-				<h2 className="mb-6 text-2xl font-bold">{localStorage.getItem("username")}</h2>
+			<aside className="hidden w-30 bg-main-lightPurple p-4 text-main-purple md:block">
+				<h2 className="mb-6 text-2xl font-bold capitalize">{localStorage.getItem("username")}</h2>
 				<nav>
 					<ul className="space-y-4 font-semibold text-main-purple transition-colors duration-300">
 						<li>

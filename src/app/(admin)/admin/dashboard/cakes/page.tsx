@@ -42,47 +42,43 @@ export default function CakesPage() {
 
 	// Handle form submission for adding a new cake
 	const handleAddCake = async () => {
-		return new Promise<void>(async (resolve, reject) => {
-			setIsLoading(true);
-			const formData = new FormData();
-			formData.append("name", cakeDetails.name);
-			formData.append("flavor", cakeDetails.flavor);
-			formData.append("base_price", cakeDetails.base_price.toString());
-			formData.append("category_id", cakeDetails.category_id.toString());
+		setIsLoading(true);
+		const formData = new FormData();
+		formData.append("name", cakeDetails.name);
+		formData.append("flavor", cakeDetails.flavor);
+		formData.append("base_price", cakeDetails.base_price.toString());
+		formData.append("category_id", cakeDetails.category_id.toString());
 
-			if (cakeDetails.description) {
-				formData.append("description", cakeDetails.description);
+		if (cakeDetails.description) {
+			formData.append("description", cakeDetails.description);
+		}
+		if (featuredImage) {
+			formData.append("featured_image", featuredImage);
+		}
+		if (images.length > 0) {
+			for (const image of images) {
+				formData.append("images", image);
 			}
-			if (featuredImage) {
-				formData.append("featured_image", featuredImage);
-			}
-			if (images.length > 0) {
-				for (const image of images) {
-					formData.append("images", image);
-				}
-			}
+		}
 
-			try {
-				await AxlPastriesClient.addCake(formData);
-				const updatedCakes = await AxlPastriesClient.getCakes();
-				setCakes(updatedCakes);
-				setCakeDetails({
-					name: "",
-					flavor: "",
-					description: "",
-					base_price: 0,
-					category_id: categories[0]?.id ?? 0
-				});
-				setFeaturedImage(null);
-				dialogCloseRef.current?.click();
-				setIsLoading(false);
-				resolve(); // Resolves the Promise
-			} catch (error) {
-				console.error("Failed to add cake", error);
-				setIsLoading(false);
-				reject(error); // Rejects the Promise
-			}
-		});
+		try {
+			await AxlPastriesClient.addCake(formData);
+			const updatedCakes = await AxlPastriesClient.getCakes();
+			setCakes(updatedCakes);
+			setCakeDetails({
+				name: "",
+				flavor: "",
+				description: "",
+				base_price: 0,
+				category_id: categories[0]?.id ?? 0
+			});
+			setFeaturedImage(null);
+			dialogCloseRef.current?.click();
+			setIsLoading(false);
+		} catch (error) {
+			console.error("Failed to add cake", error);
+			setIsLoading(false);
+		}
 	};
 
 	// Handle form submission for updating an existing cake
