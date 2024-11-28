@@ -71,6 +71,7 @@ class AxlPastriesClient {
 	// Get all categories
 	async getCategories(): Promise<Category[]> {
 		const res = await this.client.get<Category[]>(CATEGORIES_ENDPOINT);
+		console.log(res.data);
 		return res.data;
 	}
 

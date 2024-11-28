@@ -98,14 +98,14 @@ export function CategoryDataTable<TData, TValue>({
 										<div className="flex flex-col gap-2">
 											<DeleteCakeDialog
 												handleDeleteCake={handleDeleteCategory}
-												id={row.getValue("id")}
+												id={row.getValue("category_id")}
 												dialogCloseRef={dialogCloseRef}
 												isLoading={isDialogLoading}
 											/>
 											<CategoryDialog
 												categoryDetails={categoryDetails}
 												setCategoryDetails={setCategoryDetails}
-												handleAction={() => handleUpdateCategory(categoryDetails.id)}
+												handleAction={() => handleUpdateCategory(categoryDetails.category_id)}
 												existingCategoryDetails={row.original as Category}
 												isLoading={isDialogLoading}
 												dialogCloseRef={dialogCloseRef}

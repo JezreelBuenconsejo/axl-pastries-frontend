@@ -17,7 +17,7 @@ export default function CakesPage() {
 		flavor: "",
 		description: "",
 		base_price: 0,
-		category_id: categories[0]?.id ?? 0
+		category_id: categories ? categories[0]?.category_id : 0
 	});
 	const [featuredImage, setFeaturedImage] = useState<File | null>(null);
 	const [images, setImages] = useState<File[]>([]);
@@ -45,9 +45,10 @@ export default function CakesPage() {
 			flavor: "",
 			description: "",
 			base_price: 0,
-			category_id: categories[0]?.id ?? 0
+			category_id: categories ? categories[0]?.category_id : 0
 		});
 		setFeaturedImage(null);
+		setImages([]);
 		dialogCloseRef.current?.click();
 	};
 
@@ -121,7 +122,7 @@ export default function CakesPage() {
 			</div>
 			<CakeDataTable
 				columns={cakeColumns}
-				data={cakes}
+				data={cakes ?? []}
 				cakeDetails={cakeDetails}
 				setCakeDetails={setCakeDetails}
 				setFeaturedImage={setFeaturedImage}

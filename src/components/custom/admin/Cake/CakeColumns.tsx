@@ -31,7 +31,7 @@ export const cakeColumns: ColumnDef<Cake>[] = [
 			const images: string[] = row.getValue("images");
 			return (
 				<>
-					{images.length > 0 ? (
+					{(images != null && images.length > 0) ? (
 						<Carousel className="w-36">
 							<CarouselContent>
 								{images.map((image, index) => (

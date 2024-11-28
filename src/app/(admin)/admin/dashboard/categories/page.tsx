@@ -14,7 +14,7 @@ export default function CategoriesPage() {
 	const { categories, fetchCategories, categoriesLoading } = useCategories();
 	const [isDialogLoading, setIsDialogLoading] = useState(false);
 	const [categoryDetails, setCategoryDetails] = useState<Category>({
-		id: categories[categories.length - 1]?.id,
+		category_id: 0,
 		name: ""
 	});
 	const dialogCloseRef = useRef<HTMLButtonElement>(null);
@@ -23,13 +23,13 @@ export default function CategoriesPage() {
 	const handleAddCategory = async () => {
 		setIsDialogLoading(true);
 		const categoryData = {
-			name: categoryDetails.name
+			name: categoryDetails.name ?? ""
 		};
 		try {
 			await AxlPastriesClient.addCategory(categoryData);
 			fetchCategories();
 			setCategoryDetails({
-				id: categories[categories.length - 1].id,
+				category_id: categories[categories.length - 1].category_id,
 				name: ""
 			});
 			dialogCloseRef.current?.click();
@@ -48,7 +48,7 @@ export default function CategoriesPage() {
 			await AxlPastriesClient.updateCategory(id, categoryData);
 			fetchCategories();
 			setCategoryDetails({
-				id: categories[categories.length - 1].id,
+				category_id: categories[categories.length - 1].category_id,
 				name: ""
 			});
 			dialogCloseRef.current?.click();
@@ -74,7 +74,7 @@ export default function CategoriesPage() {
 
 	const columns: ColumnDef<Category>[] = [
 		{
-			accessorKey: "id",
+			accessorKey: "category_id",
 			header: ({ column }) => {
 				return (
 					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>

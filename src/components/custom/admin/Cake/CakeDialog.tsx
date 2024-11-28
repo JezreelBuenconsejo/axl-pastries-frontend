@@ -92,16 +92,17 @@ const CakeDialog: React.FC<CakeDialogProps> = ({
                   category_id: parseInt(value),
                 })
               }
+              required
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Category" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id.toString()}>
+                {categories ? (categories.map((category) => (
+                  <SelectItem key={category.category_id} value={category.category_id.toString()}>
                     {category.name}
                   </SelectItem>
-                ))}
+                ))): "No categories created"}
               </SelectContent>
             </Select>
           </div>
