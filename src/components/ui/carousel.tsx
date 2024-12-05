@@ -19,6 +19,9 @@ type CarouselProps = {
 	setApi?: (api: CarouselApi) => void;
 };
 
+type CustomProps = {
+	thumbnails?: Array<string>;
+};
 type CarouselContextProps = {
 	carouselRef: ReturnType<typeof useEmblaCarousel>[0];
 	api: ReturnType<typeof useEmblaCarousel>[1];
@@ -40,8 +43,11 @@ function useCarousel() {
 	return context;
 }
 
-const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & CarouselProps>(
-	({ orientation = "horizontal", opts, setApi, plugins, className, children, ...props }, ref) => {
+const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & CarouselProps & CustomProps>(
+	(
+		{ orientation = "horizontal", opts, setApi, plugins, className, children, thumbnails: hasThumbs, ...props },
+		ref
+	) => {
 		const [carouselRef, api] = useEmblaCarousel(
 			{
 				...opts,
@@ -126,6 +132,20 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 					{...props}
 				>
 					{children}
+
+					{hasThumbs && (
+						<div className="mt-10 flex h-20 justify-center gap-1 md:h-auto">
+							{hasThumbs.map((item, index) => (
+								<button
+									key={index}
+									className={cn("flex h-[53px] w-[100px] items-center bg-white")}
+									onClick={() => api?.scrollTo(index)}
+								>
+									<img src={item} alt={`image-${index}`} className="mx-auto h-full w-auto" />
+								</button>
+							))}
+						</div>
+					)}
 				</div>
 			</CarouselContext.Provider>
 		);

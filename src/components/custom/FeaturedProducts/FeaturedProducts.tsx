@@ -3,6 +3,7 @@ import React from "react";
 import FeaturedProductCard from "./FeaturedProductCard";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Cake } from "@/types/cake";
+import Link from "next/link";
 
 type FeaturedProductsProps = {
 	products: Cake[];
@@ -18,14 +19,16 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = props => {
 				<CarouselContent className="first:pl-5 md:first:pl-20">
 					{React.Children.toArray(
 						props.products.map(item => (
-							<CarouselItem className="px-5 sm:basis-[250px] md:basis-[350px]">
-								<FeaturedProductCard
-									img={item.featured_image_url}
-									category={"Cake"}
-									name={item.name}
-									price={item.base_price}
-								/>
-							</CarouselItem>
+							<Link href={"/product?id=" + item.id} key={item.id}>
+								<CarouselItem className="px-5 sm:basis-[250px] md:basis-[350px]">
+									<FeaturedProductCard
+										img={item.featured_image_url}
+										category={"Cake"}
+										name={item.name}
+										price={item.base_price}
+									/>
+								</CarouselItem>
+							</Link>
 						))
 					)}
 				</CarouselContent>

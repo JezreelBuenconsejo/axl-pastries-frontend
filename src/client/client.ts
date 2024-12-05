@@ -50,6 +50,11 @@ class AxlPastriesClient {
 		const res = await this.client.get<Cake[]>(CAKES_ENDPOINT);
 		return res.data;
 	}
+	
+	async getCakeById(id: number): Promise<Cake> {
+		const res = await this.client.get<Cake>(`${CAKES_ENDPOINT}/${id}`);
+		return res.data;
+	}
 
 	// Add a new cake
 	async addCake(cake: FormData): Promise<Cake> {
@@ -71,7 +76,6 @@ class AxlPastriesClient {
 	// Get all categories
 	async getCategories(): Promise<Category[]> {
 		const res = await this.client.get<Category[]>(CATEGORIES_ENDPOINT);
-		console.log(res.data);
 		return res.data;
 	}
 

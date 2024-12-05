@@ -49,11 +49,11 @@ export const Navbar: React.FC<NavbarProps> = props => {
 							))}
 						</NavigationMenuList>
 					</NavigationMenu>
-					<Button variant="default" className="group h-auto p-0">
+					<Button variant="none" className="group h-auto p-0">
 						<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
 					</Button>
 					<Button
-						variant="default"
+						variant="none"
 						className="mt-2 flex w-6 p-0 md:hidden"
 						onClick={() => {
 							setOpen(!open);
