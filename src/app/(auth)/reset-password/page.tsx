@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-const ResetPassword = () => {
+const ResetPasswordComponent = () => {
 	const searchParams = useSearchParams();
 
 	// Extract `username` and `resetCode` from search params
@@ -60,8 +60,7 @@ const ResetPassword = () => {
 	};
 
 	return (
-		<Suspense fallback={<div>Loading...</div>}>
-			<form
+		<form
 			onSubmit={handleResetPassword}
 			className="mx-auto w-full max-w-md space-y-4 rounded-md bg-white p-6 shadow-md"
 		>
@@ -95,6 +94,13 @@ const ResetPassword = () => {
 			)}
 			{error && <p className="mt-2 text-center text-red-500">{error}</p>}
 		</form>
+	);
+};
+
+const ResetPassword: React.FC = () => {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<ResetPasswordComponent />
 		</Suspense>
 	);
 };

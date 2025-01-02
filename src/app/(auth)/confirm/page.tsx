@@ -1,13 +1,12 @@
 "use client";
-import { useEffect, useState, useMemo, Suspense } from "react";
+import React, { useEffect, useState, useMemo, Suspense } from "react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const ConfirmPage = () => {
+const ConfirmComponent: React.FC = () => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 
-	// Extract `username` and `code` from search params
 	const username = useMemo(() => searchParams.get("username"), [searchParams]);
 	const code = useMemo(() => searchParams.get("code"), [searchParams]);
 
@@ -32,7 +31,7 @@ const ConfirmPage = () => {
 					setStatus("Account confirmed successfully! Redirecting to login...");
 					setTimeout(() => {
 						router.push("/login");
-					}, 3000); // Redirect to login after 3 seconds
+					}, 3000);
 				} else {
 					setStatus("Failed to confirm account. Please try again or contact support.");
 				}
@@ -48,16 +47,22 @@ const ConfirmPage = () => {
 	}, [code, username, router]);
 
 	return (
-		<Suspense fallback={<div>Loading...</div>}>
-			<div className="flex min-h-screen w-full items-center justify-center bg-gray-100">
-				<div className="max-w-lg rounded-md bg-white p-6 text-center shadow-md">
-					{loading ? (
-						<h1 className="text-2xl font-bold text-gray-700">Confirming your account...</h1>
-					) : (
-						<h1 className="text-2xl font-bold text-gray-700">{status}</h1>
-					)}
-				</div>
+		<div className="flex min-h-screen w-full items-center justify-center bg-gray-100">
+			<div className="max-w-lg rounded-md bg-white p-6 text-center shadow-md">
+				{loading ? (
+					<h1 className="text-2xl font-bold text-gray-700">Confirming your account...</h1>
+				) : (
+					<h1 className="text-2xl font-bold text-gray-700">{status}</h1>
+				)}
 			</div>
+		</div>
+	);
+};
+
+const ConfirmPage: React.FC = () => {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<ConfirmComponent />
 		</Suspense>
 	);
 };
