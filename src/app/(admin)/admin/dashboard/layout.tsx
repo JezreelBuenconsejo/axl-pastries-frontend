@@ -4,21 +4,49 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
+import axios from "axios";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
+	const [username, setUsername] = useState("");
+
 	useEffect(() => {
-		const storedToken = localStorage.getItem("token");
+		const verifyAdmin = async () => {
+			const storedToken = localStorage.getItem("token");
 
-		// If no token is found, redirect to the login page
-		if (!storedToken) {
-			router.push("/admin/login");
-			return;
-		}
+			if (!storedToken) {
+				router.push("/admin/login");
+				return;
+			}
 
-		setLoading(false);
-	}, []);
+			try {
+				const response = await axios.post(
+					"http://localhost:8080/admin/verify",
+					{},
+					{
+						headers: {
+							Authorization: `Bearer ${storedToken}`,
+						},
+					}
+				);
+
+				if (response.data.role !== "admin") {
+					alert("You are not an admin")
+					router.push("/dashboard");
+					throw new Error("Unauthorized");
+				}
+
+				setUsername(response.data.username); // Assuming username is returned
+				setLoading(false);
+			} catch (error) {
+				alert("You are not an admin")
+				router.push("/dashboard");
+			}
+		};
+
+		verifyAdmin();
+	}, [router]);
 
 	if (loading) {
 		return (
@@ -28,10 +56,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 			</div>
 		);
 	}
+
 	return (
 		<div className="flex min-h-screen w-full">
 			<aside className="hidden w-30 bg-main-lightPurple p-4 text-main-purple md:block">
-				<h2 className="mb-6 text-2xl font-bold capitalize">{localStorage.getItem("username")}</h2>
+				<h2 className="mb-6 text-2xl font-bold capitalize">{username}</h2>
 				<nav>
 					<ul className="space-y-4 font-semibold text-main-purple transition-colors duration-300">
 						<li>

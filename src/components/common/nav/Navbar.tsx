@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OrderIcon } from "../icons/icons";
 import { BurgerIcon } from "../icons/buttons";
 import { Logo } from "../icons/logo";
@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BurgerMenu from "./BurgerMenu";
+import { UserCircle } from "lucide-react";
 
 export type ListItem = {
 	list: string;
@@ -23,6 +24,16 @@ type NavbarProps = {
 };
 export const Navbar: React.FC<NavbarProps> = props => {
 	const [open, setOpen] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		const userName = localStorage.getItem("username");
+		if (token && userName) {
+			setIsLoggedIn(true);
+		} else {
+			setIsLoggedIn(false);
+		}
+	}, []);
 	return (
 		<section className="relative z-[2] font-montserrat">
 			<nav className="relative z-10 mx-auto flex max-w-[1440px] justify-between bg-white p-6 px-5 lg:px-20">
@@ -49,9 +60,15 @@ export const Navbar: React.FC<NavbarProps> = props => {
 							))}
 						</NavigationMenuList>
 					</NavigationMenu>
-					<Button variant="none" className="group h-auto p-0">
-						<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
-					</Button>
+					<div className="flex items-center justify-between gap-4">
+						<Button variant="none" className="group h-auto p-0">
+							<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
+						</Button>
+						<Link href={isLoggedIn ? "/dashboard" : "/login"} className="group h-auto p-0">
+							<UserCircle className="h-12 w-12 stroke-main-purple transition-all duration-150 group-hover:stroke-main-lightBlue" />
+						</Link>
+					</div>
+
 					<Button
 						variant="none"
 						className="mt-2 flex w-6 p-0 md:hidden"
