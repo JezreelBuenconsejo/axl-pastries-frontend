@@ -33,8 +33,9 @@ const Login = () => {
 
 			// Redirect to the user dashboard
 			router.push("/dashboard");
-		} catch (err: any) {
-			setError(err.response?.data?.error || "An error occurred. Please try again.");
+		} catch (err) {
+			console.log(err)
+			setError("An error occurred. Please try again.");
 		} finally {
 			setLoading(false);
 		}

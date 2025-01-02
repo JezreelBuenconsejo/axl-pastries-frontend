@@ -40,6 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 				setUsername(response.data.username); // Assuming username is returned
 				setLoading(false);
 			} catch (error) {
+				console.log(error);
 				alert("You are not an admin")
 				router.push("/dashboard");
 			}

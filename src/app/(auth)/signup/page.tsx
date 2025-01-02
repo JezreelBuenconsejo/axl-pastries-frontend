@@ -40,8 +40,9 @@ const Signup = () => {
 			console.log("Signup success:", response.data);
 			alert("Signup successful! Check your email to confirm your account");
 			router.push("/");
-		} catch (err: any) {
-			setError(err.response?.data?.error || "An error occurred. Please try again.");
+		} catch (err) {
+			console.log(err)
+			setError("An error occurred. Please try again.");
 		} finally {
 			setLoading(false);
 		}
