@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGetProductDetails } from "@/hooks/useProductDetails";
 import { Button } from "@/components/ui/button";
@@ -57,71 +57,73 @@ const ProductPage = () => {
 	];
 
 	return (
-		<section className="min-h-[calc(100vh-455px)] w-full p-6 px-5 lg:px-20">
-			<h1 className="text-center text-4xl font-bold">{product?.name}</h1>
-			<h3 className="mb-5 text-center text-xl font-medium italic">{product?.category_name}</h3>
-			<div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-				{/* Carousel */}
-				<Carousel className="w-full" thumbnails={images}>
-					<div className="border-2 py-4">
-						<CarouselContent>
-							{images.map((item, index) => (
-								<CarouselItem key={index} className="flex h-96 w-full items-center justify-center">
-									<img
-										src={item}
-										alt={`Product ${index + 1}`}
-										className="max-h-full w-auto object-contain px-4"
-									/>
-								</CarouselItem>
-							))}
-						</CarouselContent>
-					</div>
-				</Carousel>
-
-				{/* Product Details */}
-				<div className="flex flex-col gap-4 font-medium">
-					<div className="text-base leading-5">
-						<p>{product?.description}</p>
-						<p className="mt-1.5 italic">Price Starts at P{basePrice}</p>
-					</div>
-					<span>Flavor: {product?.flavor}</span>
-					{/* Size Selector */}
-					<div className="flex items-center gap-3">
-						<span>Selected size: {size.label}</span>
-						<Select onValueChange={value => handleSizeChange(parseFloat(value))}>
-							<SelectTrigger className="w-32">
-								<SelectValue placeholder={size.label} />
-							</SelectTrigger>
-							<SelectContent>
-								{SIZE_OPTIONS.map(option => (
-									<SelectItem key={option.factor} value={String(option.factor)}>
-										{option.label}
-									</SelectItem>
+		<Suspense fallback={<div className="min-h-[calc(100vh-455px)]">Loading...</div>}>
+			<section className="min-h-[calc(100vh-455px)] w-full p-6 px-5 lg:px-20">
+				<h1 className="text-center text-4xl font-bold">{product?.name}</h1>
+				<h3 className="mb-5 text-center text-xl font-medium italic">{product?.category_name}</h3>
+				<div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+					{/* Carousel */}
+					<Carousel className="w-full" thumbnails={images}>
+						<div className="border-2 py-4">
+							<CarouselContent>
+								{images.map((item, index) => (
+									<CarouselItem key={index} className="flex h-96 w-full items-center justify-center">
+										<img
+											src={item}
+											alt={`Product ${index + 1}`}
+											className="max-h-full w-auto object-contain px-4"
+										/>
+									</CarouselItem>
 								))}
-							</SelectContent>
-						</Select>
-					</div>
+							</CarouselContent>
+						</div>
+					</Carousel>
 
-					{/* Quantity Selector */}
-					<div className="flex items-center gap-4">
-						<Button
-							className="px-4 py-2"
-							onClick={() => handleQuantityChange(Math.max(quantity - 1, 1))}
-							disabled={quantity === 1}
-						>
-							-
-						</Button>
-						<span className="w-5 text-center">{quantity}</span>
-						<Button className="px-4 py-2" onClick={() => handleQuantityChange(quantity + 1)}>
-							+
-						</Button>
-					</div>
+					{/* Product Details */}
+					<div className="flex flex-col gap-4 font-medium">
+						<div className="text-base leading-5">
+							<p>{product?.description}</p>
+							<p className="mt-1.5 italic">Price Starts at P{basePrice}</p>
+						</div>
+						<span>Flavor: {product?.flavor}</span>
+						{/* Size Selector */}
+						<div className="flex items-center gap-3">
+							<span>Selected size: {size.label}</span>
+							<Select onValueChange={value => handleSizeChange(parseFloat(value))}>
+								<SelectTrigger className="w-32">
+									<SelectValue placeholder={size.label} />
+								</SelectTrigger>
+								<SelectContent>
+									{SIZE_OPTIONS.map(option => (
+										<SelectItem key={option.factor} value={String(option.factor)}>
+											{option.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 
-					{/* Price */}
-					<div className="text-xl font-bold">Price: P{price}</div>
+						{/* Quantity Selector */}
+						<div className="flex items-center gap-4">
+							<Button
+								className="px-4 py-2"
+								onClick={() => handleQuantityChange(Math.max(quantity - 1, 1))}
+								disabled={quantity === 1}
+							>
+								-
+							</Button>
+							<span className="w-5 text-center">{quantity}</span>
+							<Button className="px-4 py-2" onClick={() => handleQuantityChange(quantity + 1)}>
+								+
+							</Button>
+						</div>
+
+						{/* Price */}
+						<div className="text-xl font-bold">Price: P{price}</div>
+					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		</Suspense>
 	);
 };
 

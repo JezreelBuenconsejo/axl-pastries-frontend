@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -48,15 +48,17 @@ const ConfirmPage = () => {
 	}, [code, username, router]);
 
 	return (
-		<div className="flex min-h-screen w-full items-center justify-center bg-gray-100">
-			<div className="max-w-lg rounded-md bg-white p-6 text-center shadow-md">
-				{loading ? (
-					<h1 className="text-2xl font-bold text-gray-700">Confirming your account...</h1>
-				) : (
-					<h1 className="text-2xl font-bold text-gray-700">{status}</h1>
-				)}
+		<Suspense fallback={<div>Loading...</div>}>
+			<div className="flex min-h-screen w-full items-center justify-center bg-gray-100">
+				<div className="max-w-lg rounded-md bg-white p-6 text-center shadow-md">
+					{loading ? (
+						<h1 className="text-2xl font-bold text-gray-700">Confirming your account...</h1>
+					) : (
+						<h1 className="text-2xl font-bold text-gray-700">{status}</h1>
+					)}
+				</div>
 			</div>
-		</div>
+		</Suspense>
 	);
 };
 
