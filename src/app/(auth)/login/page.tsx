@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AxlPastriesClient from "@/client/client";
 
 const Login = () => {
 	const [username, setUsername] = useState("");
@@ -21,14 +21,11 @@ const Login = () => {
 
 		try {
 			// Replace with your backend API endpoint
-			const response = await axios.post("http://localhost:8080/login", {
-				username,
-				password
-			});
+			const response = await AxlPastriesClient.userLogin({ username, password });
 
-			console.log("Login success:", response.data);
+			console.log("Login success:", response.token);
 
-			localStorage.setItem("token", response.data.token);
+			localStorage.setItem("token", response.token);
 			localStorage.setItem("username", username);
 
 			// Redirect to the user dashboard

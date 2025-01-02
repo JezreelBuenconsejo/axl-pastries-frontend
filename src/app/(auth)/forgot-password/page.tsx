@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import axios from "axios";
+import AxlPastriesClient from "@/client/client";
 import Link from "next/link";
 
 const ForgotPassword = () => {
@@ -20,8 +20,8 @@ const ForgotPassword = () => {
 		setError("");
 
 		try {
-			const response = await axios.post("http://localhost:8080/forgot-password", { username: email });
-			setMessage(response.data.message);
+			const response = await AxlPastriesClient.forgotPassword(email);
+			setMessage(response.message);
 		} catch (err) {
 			console.log(err)
 			setError("An error occurred. Please try again.");

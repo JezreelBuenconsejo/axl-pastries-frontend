@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
-import axios from "axios";
+import AxlPastriesClient from "@/client/client";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
@@ -21,23 +21,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 			}
 
 			try {
-				const response = await axios.post(
-					"http://localhost:8080/admin/verify",
-					{},
-					{
-						headers: {
-							Authorization: `Bearer ${storedToken}`,
-						},
-					}
-				);
+				const response = await AxlPastriesClient.verifyAdmin();
 
-				if (response.data.role !== "admin") {
+				if (response.role !== "admin") {
 					alert("You are not an admin")
 					router.push("/dashboard");
 					throw new Error("Unauthorized");
 				}
 
-				setUsername(response.data.username); // Assuming username is returned
+				setUsername(response.username); // Assuming username is returned
 				setLoading(false);
 			} catch (error) {
 				console.log(error);

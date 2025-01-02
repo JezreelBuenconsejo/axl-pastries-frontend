@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
+import AxlPastriesClient from "@/client/client";
 import { useRouter } from "next/navigation";
 
 const Signup = () => {
@@ -29,15 +29,9 @@ const Signup = () => {
 		setLoading(true);
 		try {
 			// Replace with your backend API endpoint
-			const response = await axios.post("http://localhost:8080/register", {
-				first_name: firstName,
-				last_name: lastName,
-				username,
-				email,
-				password
-			});
+			const response = await AxlPastriesClient.registerUser({ username, email, password, first_name: firstName, last_name: lastName });
 
-			console.log("Signup success:", response.data);
+			console.log("Signup success:", response.message);
 			alert("Signup successful! Check your email to confirm your account");
 			router.push("/");
 		} catch (err) {

@@ -9,11 +9,19 @@ import {
 	CATEGORIES_ENDPOINT,
 	ADD_CATEGORY_ENDPOINT,
 	DELETE_CATEGORY_ENDPOINT,
-	UPDATE_CATEGORY_ENDPOINT
+	UPDATE_CATEGORY_ENDPOINT,
+	VERIFY_ADMIN,
+	CONFIRM_ACCOUNT,
+	FORGOT_PASSWORD,
+	RESET_PASSWORD,
+	REGISTER,
+	LOGIN,
+	USER_DETAILS
 } from "./environment";
-import { AdminLoginRequest, AdminLoginResponse } from "@/types/auth";
+import { LoginRequest, AdminLoginResponse, RegisterUserRequest } from "@/types/auth";
 import { Cake } from "@/types/cake";
 import { Category } from "@/types/categories";
+import { UserDetails } from "@/types/user";
 
 // Helper function to get token from localStorage
 function getToken(): string | null {
@@ -40,8 +48,50 @@ class AxlPastriesClient {
 	}
 
 	// Admin Login
-	async adminLogin(data: AdminLoginRequest): Promise<AdminLoginResponse> {
+	async adminLogin(data: LoginRequest): Promise<AdminLoginResponse> {
 		const res = await this.client.post<AdminLoginResponse>(ADMIN_LOGIN, data);
+		return res.data;
+	}
+
+	// Verify Admin
+	async verifyAdmin(): Promise<{ role: string; username: string }> {
+		const res = await this.client.post<{ role: string; username: string }>(VERIFY_ADMIN, {});
+		return res.data;
+	}
+
+	// Confirm Account
+	async confirmAccount(code: string, username: string): Promise<{ status: number; data: { message: string } }> {
+		const res = await this.client.post<{ message: string }>(CONFIRM_ACCOUNT, { code, username });
+		return { status: res.status, data: res.data };
+	}	
+
+	// Forgot Password
+	async forgotPassword(username: string): Promise<{ message: string }> {
+		const res = await this.client.post<{ message: string }>(FORGOT_PASSWORD, { username });
+		return res.data;
+	}
+
+	// Reset Password
+	async resetPassword(code: string, password: string, username: string): Promise<{ message: string }> {
+		const res = await this.client.post<{ message: string }>(RESET_PASSWORD, { code, password, username });
+		return res.data;
+	}
+
+	// User Login
+	async userLogin(data: LoginRequest): Promise<{ token: string }> {
+		const res = await this.client.post<{ token: string }>(LOGIN, data);
+		return res.data;
+	}
+
+	// Register User
+	async registerUser(data: RegisterUserRequest): Promise<{ message: string }> {
+		const res = await this.client.post<{ message: string }>(REGISTER, data);
+		return res.data;
+	}
+
+	// Get User Details
+	async getUserDetails(): Promise<UserDetails> {
+		const res = await this.client.post<UserDetails>(USER_DETAILS, {});
 		return res.data;
 	}
 
@@ -50,7 +100,8 @@ class AxlPastriesClient {
 		const res = await this.client.get<Cake[]>(CAKES_ENDPOINT);
 		return res.data;
 	}
-	
+
+	// Get cake by ID
 	async getCakeById(id: number): Promise<Cake> {
 		const res = await this.client.get<Cake>(`${CAKES_ENDPOINT}/${id}`);
 		return res.data;

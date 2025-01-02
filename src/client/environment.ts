@@ -23,6 +23,17 @@ export const getApiRoot = (): string => {
 
 // Endpoints
 export const ADMIN_LOGIN = `${getApiRoot()}/admin/login`;
+export const VERIFY_ADMIN = `${getApiRoot()}/admin/verify`;
+
+// Authentication
+export const CONFIRM_ACCOUNT = `${getApiRoot()}/confirm`;
+export const FORGOT_PASSWORD = `${getApiRoot()}/forgot-password`;
+export const RESET_PASSWORD = `${getApiRoot()}/reset-password`;
+export const LOGIN = `${getApiRoot()}/login`;
+export const REGISTER = `${getApiRoot()}/register`;
+
+// User Details
+export const USER_DETAILS = `${getApiRoot()}/user/details`;
 
 // Cakes
 export const CAKES_ENDPOINT = `${getApiRoot()}/cakes`;

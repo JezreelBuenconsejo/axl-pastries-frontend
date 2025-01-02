@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
+import AxlPastriesClient from "@/client/client";
 
 const CustomerDashboard = () => {
   const [userDetails, setUserDetails] = useState({
@@ -25,21 +25,13 @@ const CustomerDashboard = () => {
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:8080/user/details",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(response.data)
+        const response = await AxlPastriesClient.getUserDetails();
+        console.log(response)
         setUserDetails({
-          username: response.data.username || "",
-          firstName: response.data.first_name || "",
-          lastName: response.data.last_name || "",
-          email: response.data.email || "",
+          username: response.username || "",
+          firstName: response.first_name || "",
+          lastName: response.last_name || "",
+          email: response.email || "",
         });
         setLoading(false);
       } catch (error) {

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo, Suspense } from "react";
-import axios from "axios";
+import AxlPastriesClient from "@/client/client";
 import { useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,20 +39,12 @@ const ResetPasswordComponent = () => {
 
 		setLoading(true); // Start loading state
 		try {
-			const response = await axios.post("http://localhost:8080/reset-password", {
-				code: resetCode,
-				password,
-				username
-			});
-
-			setMessage(response.data.message || "Password reset successfully!");
+			const response = await AxlPastriesClient.resetPassword(resetCode, password, username);
+			setMessage(response.message || "Password reset successfully!");
 			setError("");
 		} catch (err) {
-			if (axios.isAxiosError(err)) {
-				setError(err.response?.data?.error || "An error occurred. Please try again.");
-			} else {
-				setError("An unexpected error occurred. Please try again.");
-			}
+			console.log(err);
+			setError("An unexpected error occurred. Please try again.");
 			setMessage("");
 		} finally {
 			setLoading(false); // End loading state

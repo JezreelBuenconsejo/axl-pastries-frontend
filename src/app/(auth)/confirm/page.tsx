@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useMemo, Suspense } from "react";
-import axios from "axios";
+import AxlPastriesClient from "@/client/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const ConfirmComponent: React.FC = () => {
@@ -22,10 +22,7 @@ const ConfirmComponent: React.FC = () => {
 			}
 
 			try {
-				const response = await axios.post("http://localhost:8080/confirm", {
-					code,
-					username
-				});
+				const response = await AxlPastriesClient.confirmAccount(code, username);
 
 				if (response.status === 200) {
 					setStatus("Account confirmed successfully! Redirecting to login...");
