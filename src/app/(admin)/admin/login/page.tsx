@@ -8,12 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { AdminLoginRequest } from "@/types/auth";
+import { LoginRequest } from "@/types/auth";
 import AxlPastriesClient from "@/client/client";
 import { FaSpinner } from "react-icons/fa";
 
 // Define validation schema using Zod
-const formSchema: z.ZodType<AdminLoginRequest> = z.object({
+const formSchema: z.ZodType<LoginRequest> = z.object({
 	username: z.string().min(1, { message: "Username is required" }),
 	password: z.string().min(1, { message: "Password is required" })
 });
