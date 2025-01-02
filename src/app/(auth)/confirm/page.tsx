@@ -1,19 +1,18 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const ConfirmPage = () => {
 	const searchParams = useSearchParams();
-	const [loading, setLoading] = useState(true);
-	const [status, setStatus] = useState("");
 	const router = useRouter();
 
-	const username = searchParams.get("username");
-	const code = searchParams.get("code");
+	// Extract `username` and `code` from search params
+	const username = useMemo(() => searchParams.get("username"), [searchParams]);
+	const code = useMemo(() => searchParams.get("code"), [searchParams]);
 
-	// Prevent multiple requests
-	const isRequestSent = useRef(false);
+	const [loading, setLoading] = useState(true);
+	const [status, setStatus] = useState("");
 
 	useEffect(() => {
 		const confirmAccount = async () => {
@@ -23,26 +22,24 @@ const ConfirmPage = () => {
 				return;
 			}
 
-			// Prevent duplicate requests
-			if (isRequestSent.current) return;
-			isRequestSent.current = true;
-
 			try {
 				const response = await axios.post("http://localhost:8080/confirm", {
 					code,
-					username,
+					username
 				});
 
 				if (response.status === 200) {
-                    setLoading(false);
-					setStatus("Account confirmed successfully! Redirecting to login...");;
+					setStatus("Account confirmed successfully! Redirecting to login...");
 					setTimeout(() => {
 						router.push("/login");
-					}, 3000);
+					}, 3000); // Redirect to login after 3 seconds
+				} else {
+					setStatus("Failed to confirm account. Please try again or contact support.");
 				}
 			} catch (error) {
 				console.error("Error confirming account:", error);
 				setStatus("Failed to confirm account. Please try again or contact support.");
+			} finally {
 				setLoading(false);
 			}
 		};
