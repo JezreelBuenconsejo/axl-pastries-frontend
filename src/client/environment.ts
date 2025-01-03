@@ -33,7 +33,7 @@ export const LOGIN = `${getApiRoot()}/login`;
 export const REGISTER = `${getApiRoot()}/register`;
 
 // User Details
-export const USER_DETAILS = `${getApiRoot()}/user/details`;
+export const USER_DETAILS = `${getApiRoot()}/user/profile`;
 
 // Cakes
 export const CAKES_ENDPOINT = `${getApiRoot()}/cakes`;
