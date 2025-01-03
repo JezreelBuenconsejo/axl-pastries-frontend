@@ -50,7 +50,7 @@ const Login = () => {
 
 			router.push("/dashboard");
 		} catch (err) {
-			console.log(err)
+			console.log(err);
 			setError("Username or Password is incorrect");
 		}
 		setIsLoading(false);
@@ -98,7 +98,11 @@ const Login = () => {
 						)}
 					/>
 					<div className="flex items-center justify-between">
-						<Button type="submit" className="w-full rounded-md py-2 font-semibold text-white" disabled={isLoading}>
+						<Button
+							type="submit"
+							className="w-full rounded-md py-2 font-semibold text-white"
+							disabled={isLoading}
+						>
 							{isLoading ? "Logging in..." : "Login"}
 						</Button>
 					</div>
@@ -106,10 +110,12 @@ const Login = () => {
 						<Link href="/forgot-password" className="text-blue-500 hover:underline">
 							Forgot Password?
 						</Link>
-						<span>Don’t have an account?{" "}
-						<Link href="/signup" className="text-blue-500 hover:underline">
-							Sign up
-						</Link></span>
+						<span>
+							Don’t have an account?{" "}
+							<Link href="/signup" className="text-blue-500 hover:underline">
+								Sign up
+							</Link>
+						</span>
 					</div>
 				</form>
 			</Form>

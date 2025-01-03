@@ -7,24 +7,24 @@ export const useGetProductDetails = (id: number) => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError("");
+	useEffect(() => {
+		const fetchData = async () => {
+			setLoading(true);
+			setError("");
 
-      try {
-        const response = await AxlPastriesClient.getCakeById(Number(id));
-        setProduct(response);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
+			try {
+				const response = await AxlPastriesClient.getCakeById(Number(id));
+				setProduct(response);
+			} catch (err) {
+				console.error(err);
+				setError("Failed to fetch data");
+			} finally {
+				setLoading(false);
+			}
+		};
 
-    fetchData();
-  }, [id]);
+		fetchData();
+	}, [id]);
 
-  return { product, loading, error };
+	return { product, loading, error };
 };

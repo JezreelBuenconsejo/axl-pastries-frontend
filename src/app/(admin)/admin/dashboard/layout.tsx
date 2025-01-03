@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 				const response = await AxlPastriesClient.verifyAdmin();
 
 				if (response.role !== "admin") {
-					alert("You are not an admin")
+					alert("You are not an admin");
 					router.push("/dashboard");
 					throw new Error("Unauthorized");
 				}
@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 				setLoading(false);
 			} catch (error) {
 				console.log(error);
-				alert("You are not an admin")
+				alert("You are not an admin");
 				router.push("/dashboard");
 			}
 		};
@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
 	return (
 		<div className="flex min-h-screen w-full">
-			<aside className="hidden w-30 bg-main-lightPurple p-4 text-main-purple md:block">
+			<aside className="w-30 hidden bg-main-lightPurple p-4 text-main-purple md:block">
 				<h2 className="mb-6 text-2xl font-bold capitalize">{username}</h2>
 				<nav>
 					<ul className="space-y-4 font-semibold text-main-purple transition-colors duration-300">

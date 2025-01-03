@@ -18,11 +18,11 @@ export function handleFileInputChange<T extends File | File[] | null>(
 
 export function formatDateTime(dateString: string): string {
 	return new Date(dateString).toLocaleString("en-PH", {
-	  day: "2-digit",
-	  month: "2-digit",
-	  year: "numeric",
-	  hour: "numeric",
-	  minute: "numeric",
-	  hour12: true,
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+		hour: "numeric",
+		minute: "numeric",
+		hour12: true
 	});
-  }
+}

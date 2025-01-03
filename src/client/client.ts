@@ -63,7 +63,7 @@ class AxlPastriesClient {
 	async confirmAccount(code: string, username: string): Promise<{ status: number; data: { message: string } }> {
 		const res = await this.client.post<{ message: string }>(CONFIRM_ACCOUNT, { code, username });
 		return { status: res.status, data: res.data };
-	}	
+	}
 
 	// Forgot Password
 	async forgotPassword(username: string): Promise<{ message: string }> {

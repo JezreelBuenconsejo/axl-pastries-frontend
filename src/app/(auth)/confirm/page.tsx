@@ -55,7 +55,7 @@ const ConfirmComponent: React.FC = () => {
 			<div className="max-w-lg rounded-lg bg-white p-8 text-center shadow-lg">
 				{loading ? (
 					<div className="flex flex-col items-center justify-center gap-2">
-						<FaSpinner className="mb-4 h-12 w-12 fill-main-purple animate-spin motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+						<FaSpinner className="mb-4 h-12 w-12 animate-spin fill-main-purple motion-reduce:animate-[spin_1.5s_linear_infinite]" />
 						<h1 className="text-2xl font-bold text-gray-700">Confirming your account...</h1>
 					</div>
 				) : (
@@ -69,7 +69,7 @@ const ConfirmComponent: React.FC = () => {
 							<div className="flex flex-col items-center justify-center gap-2">
 								{status}{" "}
 								{isSuccess && (
-									<FaSpinner className="h-5 w-5 fill-main-purple animate-spin motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+									<FaSpinner className="h-5 w-5 animate-spin fill-main-purple motion-reduce:animate-[spin_1.5s_linear_infinite]" />
 								)}
 							</div>
 						</AlertDescription>

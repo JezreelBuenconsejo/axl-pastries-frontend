@@ -4,7 +4,7 @@ import { MenuList } from "@/constants/menu";
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="min-h-screen flex flex-col justify-between">
+		<div className="flex min-h-screen flex-col justify-between">
 			<Navbar menu={MenuList} />
 			<main className="flex flex-col items-center justify-between overflow-x-hidden py-2">{children}</main>
 			<Footer />

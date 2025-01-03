@@ -31,7 +31,7 @@ export const cakeColumns: ColumnDef<Cake>[] = [
 			const images: string[] = row.getValue("images");
 			return (
 				<>
-					{(images != null && images.length > 0) ? (
+					{images != null && images.length > 0 ? (
 						<Carousel className="w-36">
 							<CarouselContent>
 								{images.map((image, index) => (
@@ -95,7 +95,7 @@ export const cakeColumns: ColumnDef<Cake>[] = [
 			);
 		},
 		cell: ({ row }) => {
-			return <div className=" w-20">{formatDateTime(row.getValue("created_at"))}</div>;
+			return <div className="w-20">{formatDateTime(row.getValue("created_at"))}</div>;
 		}
 	},
 	{
@@ -109,7 +109,7 @@ export const cakeColumns: ColumnDef<Cake>[] = [
 			);
 		},
 		cell: ({ row }) => {
-			return <div className=" w-20">{formatDateTime(row.getValue("updated_at"))}</div>;
+			return <div className="w-20">{formatDateTime(row.getValue("updated_at"))}</div>;
 		}
 	}
 ];
