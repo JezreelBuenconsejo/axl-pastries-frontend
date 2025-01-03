@@ -50,6 +50,7 @@ const Login = () => {
 
 			router.push("/dashboard");
 		} catch (err) {
+			console.log(err)
 			setError("Username or Password is incorrect");
 		}
 		setIsLoading(false);

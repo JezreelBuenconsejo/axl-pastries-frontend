@@ -164,4 +164,4 @@ const ResetPassword: React.FC = () => {
   );
 };
 
-export default ResetPasswordComponent;
+export default ResetPassword;
