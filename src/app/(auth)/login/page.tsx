@@ -1,87 +1,118 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/components/ui/form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import AxlPastriesClient from "@/client/client";
 
+// Schema for form validation using Zod
+const loginSchema = z.object({
+	username: z.string().min(1, {
+		message: "Username is required"
+	}),
+	password: z.string().min(1, {
+		message: "Password is required"
+	})
+});
+
 const Login = () => {
-	const [username, setUsername] = useState("");
-	const [password, setPassword] = useState("");
+	const router = useRouter();
 	const [error, setError] = useState("");
-	const [loading, setLoading] = useState(false);
-    const router = useRouter();
+	const [isLoading, setIsLoading] = useState(false);
 
-	const handleLogin = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const form = useForm({
+		resolver: zodResolver(loginSchema),
+		defaultValues: {
+			username: "",
+			password: ""
+		}
+	});
+
+	const handleLogin = async (values: z.infer<typeof loginSchema>) => {
+		setIsLoading(true);
 		setError("");
-		setLoading(true);
-
 		try {
-			// Replace with your backend API endpoint
-			const response = await AxlPastriesClient.userLogin({ username, password });
+			const response = await AxlPastriesClient.userLogin({
+				username: values.username,
+				password: values.password
+			});
 
 			console.log("Login success:", response.token);
 
 			localStorage.setItem("token", response.token);
-			localStorage.setItem("username", username);
+			localStorage.setItem("username", values.username);
 
-			// Redirect to the user dashboard
 			router.push("/dashboard");
 		} catch (err) {
-			console.log(err)
-			setError("An error occurred. Please try again.");
-		} finally {
-			setLoading(false);
+			setError("Username or Password is incorrect");
 		}
+		setIsLoading(false);
 	};
 
 	return (
-		<form className="mx-auto w-full max-w-md rounded-md bg-white p-6 shadow-md" onSubmit={handleLogin}>
-			<h2 className="mb-4 text-xl font-bold">Login</h2>
-			{error && <p className="mb-4 text-red-500">{error}</p>}
-			<div className="mb-4">
-				<label htmlFor="username" className="block text-sm font-medium">
-					Username
-				</label>
-				<Input
-					id="username"
-					type="text"
-					placeholder="Enter your username"
-					value={username}
-					onChange={e => setUsername(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="mb-4">
-				<label htmlFor="password" className="block text-sm font-medium">
-					Password
-				</label>
-				<Input
-					id="password"
-					type="password"
-					placeholder="Enter your password"
-					value={password}
-					onChange={e => setPassword(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="flex items-center justify-between">
-				<Button type="submit" disabled={loading}>
-					{loading ? "Logging in..." : "Login"}
-				</Button>
-				<div className="flex flex-col gap-2">
-					<Link href="/forgot-password" className="text-sm text-blue-500">
-						Forgot Password?
-					</Link>
-					<Link href="/signup" className="text-sm text-blue-500">
-						Sign up
-					</Link>
-				</div>
-			</div>
-		</form>
+		<div className="mx-auto w-full max-w-md rounded-lg bg-gradient-to-tr from-blue-50 to-blue-100/50 p-8 shadow-lg">
+			<h2 className="mb-6 text-center text-2xl font-extrabold text-main-purple">Welcome Back</h2>
+			{error && <p className="mb-4 rounded-lg bg-red-100 p-3 text-center text-red-500">{error}</p>}
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
+					<FormField
+						control={form.control}
+						name="username"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="text-sm font-semibold text-gray-700">Username</FormLabel>
+								<FormControl>
+									<Input
+										placeholder="Enter your username"
+										{...field}
+										className="rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="password"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="text-sm font-semibold text-gray-700">Password</FormLabel>
+								<FormControl>
+									<Input
+										type="password"
+										placeholder="Enter your password"
+										{...field}
+										className="rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<div className="flex items-center justify-between">
+						<Button type="submit" className="w-full rounded-md py-2 font-semibold text-white" disabled={isLoading}>
+							{isLoading ? "Logging in..." : "Login"}
+						</Button>
+					</div>
+					<div className="mt-4 flex flex-col items-center gap-2 text-sm">
+						<Link href="/forgot-password" className="text-blue-500 hover:underline">
+							Forgot Password?
+						</Link>
+						<span>Don’t have an account?{" "}
+						<Link href="/signup" className="text-blue-500 hover:underline">
+							Sign up
+						</Link></span>
+					</div>
+				</form>
+			</Form>
+		</div>
 	);
 };
 

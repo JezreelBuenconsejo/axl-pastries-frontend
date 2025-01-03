@@ -1,100 +1,167 @@
 "use client";
+
 import React, { useState, useMemo, Suspense } from "react";
 import AxlPastriesClient from "@/client/client";
 import { useSearchParams } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 const ResetPasswordComponent = () => {
-	const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
-	// Extract `username` and `resetCode` from search params
-	const username = useMemo(() => searchParams.get("username"), [searchParams]);
-	const resetCode = useMemo(() => searchParams.get("code"), [searchParams]);
+  const username = useMemo(() => searchParams.get("username"), [searchParams]);
+  const resetCode = useMemo(() => searchParams.get("code"), [searchParams]);
 
-	const [password, setPassword] = useState("");
-	const [confirmPassword, setConfirmPassword] = useState("");
-	const [message, setMessage] = useState("");
-	const [error, setError] = useState("");
-	const [loading, setLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState({
+    title: "",
+    description: "",
+    isError: false,
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
-	// Handler for resetting the password
-	const handleResetPassword = async (e: React.FormEvent) => {
-		e.preventDefault();
+  const form = useForm({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-		// Check if passwords match
-		if (password !== confirmPassword) {
-			setError("Passwords do not match");
-			setMessage("");
-			return;
-		}
+  const handleResetPassword = async (values: z.infer<typeof resetPasswordSchema>) => {
+	setIsLoading(true);
+    if (!username || !resetCode) {
+      setDialogContent({
+        title: "Error",
+        description: "Invalid reset link. Please try again.",
+        isError: true,
+      });
+      setDialogOpen(true);
+      return;
+    }
 
-		// Ensure `username` and `resetCode` are valid
-		if (!username || !resetCode) {
-			setError("Invalid reset link. Please try again.");
-			setMessage("");
-			return;
-		}
+    try {
+      const response = await AxlPastriesClient.resetPassword(resetCode, values.password, username);
+      setDialogContent({
+        title: "Success",
+        description: response.message || "Password reset successfully!",
+        isError: false,
+      });
+      setDialogOpen(true);
+    } catch (err) {
+      console.error(err);
+      setDialogContent({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        isError: true,
+      });
+      setDialogOpen(true);
+    }
+	setIsLoading(false);
+  };
 
-		setLoading(true); // Start loading state
-		try {
-			const response = await AxlPastriesClient.resetPassword(resetCode, password, username);
-			setMessage(response.message || "Password reset successfully!");
-			setError("");
-		} catch (err) {
-			console.log(err);
-			setError("An unexpected error occurred. Please try again.");
-			setMessage("");
-		} finally {
-			setLoading(false); // End loading state
-		}
-	};
+  return (
+    <div className="flex min-h-screen items-center justify-center w-full">
+      <Card className="w-full max-w-md shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-extrabold text-gray-800">Reset Your Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleResetPassword)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Enter new password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Confirm new password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full py-2" disabled={isLoading}>
+                {isLoading ? "Loading..." : "Reset Password"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
-	return (
-		<form
-			onSubmit={handleResetPassword}
-			className="mx-auto w-full max-w-md space-y-4 rounded-md bg-white p-6 shadow-md"
-		>
-			<h1 className="text-center text-xl font-bold">Reset Your Password</h1>
-
-			<Input
-				type="password"
-				value={password}
-				placeholder="Enter new password"
-				onChange={e => setPassword(e.target.value)}
-				required
-			/>
-			<Input
-				type="password"
-				value={confirmPassword}
-				placeholder="Confirm new password"
-				onChange={e => setConfirmPassword(e.target.value)}
-				required
-			/>
-			<Button type="submit" disabled={loading} className="w-full">
-				{loading ? "Resetting..." : "Reset Password"}
-			</Button>
-
-			{message && (
-				<div className="mt-4 text-center">
-					<p className="text-green-500">{message}</p>
-					<Link href="/login" className="text-blue-500 underline">
-						Go to Login
-					</Link>
-				</div>
-			)}
-			{error && <p className="mt-2 text-center text-red-500">{error}</p>}
-		</form>
-	);
+      {/* Alert Dialog */}
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialogContent.title}</AlertDialogTitle>
+            <AlertDialogDescription className="flex flex-col gap-1">
+              {dialogContent.description}
+              {!dialogContent.isError && (
+                <Link href="/login" className="font-medium text-blue-500 underline">
+                  {" "}
+                  Go to Login
+                </Link>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button onClick={() => setDialogOpen(false)}>Close</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
 };
 
 const ResetPassword: React.FC = () => {
-	return (
-		<Suspense fallback={<div>Loading...</div>}>
-			<ResetPasswordComponent />
-		</Suspense>
-	);
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordComponent />
+    </Suspense>
+  );
 };
 
-export default ResetPassword;
+export default ResetPasswordComponent;

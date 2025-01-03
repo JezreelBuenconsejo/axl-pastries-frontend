@@ -1,133 +1,199 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogHeader,
+	AlertDialogFooter,
+	AlertDialogTitle,
+	AlertDialogDescription
+} from "@/components/ui/alert-dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import AxlPastriesClient from "@/client/client";
-import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+const signupSchema = z
+	.object({
+		firstName: z.string().min(1, "First name is required"),
+		lastName: z.string().min(1, "Last name is required"),
+		username: z.string().min(1, "Username is required"),
+		email: z.string().email("Invalid email address"),
+		password: z.string().min(6, "Password must be at least 6 characters"),
+		confirmPassword: z.string().min(6, "Password must be at least 6 characters")
+	})
+	.refine(data => data.password === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"]
+	});
 
 const Signup = () => {
 	const router = useRouter();
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
-	const [email, setEmail] = useState("");
-	const [username, setUsername] = useState("");
-	const [password, setPassword] = useState("");
-	const [confirmPassword, setConfirmPassword] = useState("");
 	const [error, setError] = useState("");
-	const [loading, setLoading] = useState(false);
+	const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSignup = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setError("");
-
-		if (password !== confirmPassword) {
-			setError("Passwords do not match.");
-			return;
+	const form = useForm({
+		resolver: zodResolver(signupSchema),
+		defaultValues: {
+			firstName: "",
+			lastName: "",
+			username: "",
+			email: "",
+			password: "",
+			confirmPassword: ""
 		}
+	});
 
-		setLoading(true);
+	const handleSignup = async (values: z.infer<typeof signupSchema>) => {
+		setError("");
+		setIsLoading(true);
 		try {
-			// Replace with your backend API endpoint
-			const response = await AxlPastriesClient.registerUser({ username, email, password, first_name: firstName, last_name: lastName });
+			const response = await AxlPastriesClient.registerUser({
+				username: values.username,
+				email: values.email,
+				password: values.password,
+				first_name: values.firstName,
+				last_name: values.lastName
+			});
 
 			console.log("Signup success:", response.message);
-			alert("Signup successful! Check your email to confirm your account");
-			router.push("/");
+			setShowSuccessDialog(true); // Show success dialog
 		} catch (err) {
-			console.log(err)
+			console.error(err);
 			setError("An error occurred. Please try again.");
-		} finally {
-			setLoading(false);
 		}
+		setIsLoading(false);
 	};
 
 	return (
-		<form className="mx-auto w-full max-w-md rounded-md bg-white p-6 shadow-md" onSubmit={handleSignup}>
-			<h2 className="mb-4 text-xl font-bold">Sign Up</h2>
-			{error && <p className="mb-4 text-red-500">{error}</p>}
-			<div className="mb-4">
-				<label htmlFor="firstName" className="block text-sm font-medium">
-					First Name
-				</label>
-				<Input
-					id="firstName"
-					type="text"
-					placeholder="Enter your first name"
-					value={firstName}
-					onChange={e => setFirstName(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="mb-4">
-				<label htmlFor="lastName" className="block text-sm font-medium">
-					Last Name
-				</label>
-				<Input
-					id="lastName"
-					type="text"
-					placeholder="Enter your last name"
-					value={lastName}
-					onChange={e => setLastName(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="mb-4">
-				<label htmlFor="lastName" className="block text-sm font-medium">
-					Username
-				</label>
-				<Input
-					id="username"
-					type="text"
-					placeholder="Enter your Username"
-					value={username}
-					onChange={e => setUsername(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="mb-4">
-				<label htmlFor="email" className="block text-sm font-medium">
-					Email
-				</label>
-				<Input
-					id="email"
-					type="email"
-					placeholder="Enter your email"
-					value={email}
-					onChange={e => setEmail(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="mb-4">
-				<label htmlFor="password" className="block text-sm font-medium">
-					Password
-				</label>
-				<Input
-					id="password"
-					type="password"
-					placeholder="Enter your password"
-					value={password}
-					onChange={e => setPassword(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="mb-4">
-				<label htmlFor="confirmPassword" className="block text-sm font-medium">
-					Confirm Password
-				</label>
-				<Input
-					id="confirmPassword"
-					type="password"
-					placeholder="Confirm your password"
-					value={confirmPassword}
-					onChange={e => setConfirmPassword(e.target.value)}
-					required
-				/>
-			</div>
-			<Button type="submit" disabled={loading}>
-				{loading ? "Signing up..." : "Sign Up"}
-			</Button>
-		</form>
+		<div className="mx-auto w-full max-w-lg rounded-lg bg-gradient-to-tr from-blue-50 to-blue-100/50 p-8 shadow-lg">
+			<h2 className="mb-6 text-center text-2xl font-extrabold text-main-purple">Create an Account</h2>
+			{error && (
+				<Alert variant="destructive" className="mb-6">
+					<AlertTitle>Error</AlertTitle>
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			)}
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(handleSignup)} className="space-y-6">
+					<FormField
+						control={form.control}
+						name="firstName"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>First Name</FormLabel>
+								<FormControl>
+									<Input placeholder="Enter your first name" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="lastName"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Last Name</FormLabel>
+								<FormControl>
+									<Input placeholder="Enter your last name" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="username"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Username</FormLabel>
+								<FormControl>
+									<Input placeholder="Enter your username" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="email"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Email</FormLabel>
+								<FormControl>
+									<Input placeholder="Enter your email" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="password"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Password</FormLabel>
+								<FormControl>
+									<Input type="password" placeholder="Enter your password" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="confirmPassword"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Confirm Password</FormLabel>
+								<FormControl>
+									<Input type="password" placeholder="Confirm your password" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<Button
+						type="submit"
+						className="hover:bg-main-purple-hover w-full rounded-md bg-main-purple py-2 font-semibold text-white"
+						disabled={isLoading}
+					>
+						{isLoading ? "Signing Up..." : "Sign Up"}
+					</Button>
+				</form>
+			</Form>
+
+			{/* Success Dialog */}
+			<AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+				<AlertDialogContent className="bg-white">
+					<AlertDialogHeader>
+						<AlertDialogTitle>Signup Successful!</AlertDialogTitle>
+						<AlertDialogDescription>
+							Your account has been created successfully. Please check your email to confirm your account.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<Button
+							onClick={() => {
+								router.push("/");
+								setShowSuccessDialog(false);
+							}}
+							className="w-full"
+						>
+							Back to Home
+						</Button>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</div>
 	);
 };
 

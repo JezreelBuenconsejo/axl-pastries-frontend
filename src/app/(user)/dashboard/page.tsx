@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AxlPastriesClient from "@/client/client";
 
 const CustomerDashboard = () => {
@@ -26,17 +27,17 @@ const CustomerDashboard = () => {
 
       try {
         const response = await AxlPastriesClient.getUserDetails();
-        console.log(response)
         setUserDetails({
           username: response.username || "",
           firstName: response.first_name || "",
           lastName: response.last_name || "",
           email: response.email || "",
         });
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching user details:", error);
         router.push("/login");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -44,29 +45,43 @@ const CustomerDashboard = () => {
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/login");
+    localStorage.clear();
+    router.push("/");
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-md mt-10">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        Welcome, {userDetails.firstName} {userDetails.lastName}
-      </h1>
-      <p className="text-center text-lg mb-4">Username: {userDetails.username}</p>
-      <p className="text-center text-lg mb-4">Email: {userDetails.email}</p>
-      <div className="text-center mt-6">
-        <Button
-          className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
-      </div>
+    <div className="flex items-center justify-center w-full">
+      <Card className="w-full max-w-lg shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-extrabold text-gray-800">
+            Welcome, {userDetails.firstName} {userDetails.lastName}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-lg font-medium">
+              <span className="font-semibold">Username:</span> {userDetails.username}
+            </p>
+            <p className="text-lg font-medium">
+              <span className="font-semibold">Email:</span> {userDetails.email}
+            </p>
+            <Button
+              className="w-full rounded-md bg-red-500 py-2 font-semibold text-white hover:bg-red-600"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import favicon from "~/public/favicon.ico";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
 	title: "Axl Pastries",
@@ -17,7 +18,10 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`overflow-x-hidden antialiased min-h-screen`}>{children}</body>
+			<body className={`min-h-screen overflow-x-hidden antialiased`}>
+				{children}
+				<Toaster />
+			</body>
 		</html>
 	);
 }
