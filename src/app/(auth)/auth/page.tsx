@@ -3,9 +3,9 @@
 import ResetPassword from "@/components/custom/auth/ResetPassword";
 import VerifyEmail from "@/components/custom/auth/VerifyEmail";
 import { useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 
-const ModePage: React.FC = () => {
+const ModePageContent: React.FC = () => {
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
 
@@ -22,6 +22,20 @@ const ModePage: React.FC = () => {
       </div>
     );
   }
+};
+
+const ModePage: React.FC = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <h1 className="text-xl font-bold text-gray-700">Loading...</h1>
+        </div>
+      }
+    >
+      <ModePageContent />
+    </Suspense>
+  );
 };
 
 export default ModePage;
