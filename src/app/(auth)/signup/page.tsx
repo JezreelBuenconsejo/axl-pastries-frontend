@@ -17,8 +17,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, sendVerificationEmail } from "@/client/firebase";
+import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, facebookProvider, googleProvider, sendVerificationEmail } from "@/client/firebase";
+import { FaFacebook } from "react-icons/fa";
 
 const signupSchema = z
 	.object({
@@ -69,15 +70,58 @@ const Signup = () => {
 			setShowSuccessDialog(true); // Show success dialog
 		} catch (err: unknown) {
 			if (err instanceof Error) {
-			  console.error(err);
-			  setError(err.message || "An error occurred during signup");
+				console.error(err);
+				setError(err.message || "An error occurred during signup");
 			} else {
-			  console.error("Unknown error:", err);
-			  setError("An unknown error occurred.");
+				console.error("Unknown error:", err);
+				setError("An unknown error occurred.");
 			}
-		  }
-		  
+		}
+
 		setIsLoading(false);
+	};
+	const handleGoogleSignup = async () => {
+		try {
+			const result = await signInWithPopup(auth, googleProvider);
+			const user = result.user;
+
+			// Retrieve the ID token
+			const token = await user.getIdToken();
+			console.log("Google Sign-In Success:", user);
+
+			// Store the token in local storage
+			localStorage.setItem("token", token);
+
+			// Redirect to the dashboard
+			router.push("/dashboard");
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				console.error("Google Sign-In Error:", error.message);
+				setError(error.message);
+			}
+		}
+	};
+
+	const handleFacebookSignup = async () => {
+		try {
+			const result = await signInWithPopup(auth, facebookProvider);
+			const user = result.user;
+
+			// Retrieve the ID token
+			const token = await user.getIdToken();
+			console.log("Facebook Sign-In Success:", user);
+
+			// Store the token in local storage
+			localStorage.setItem("token", token);
+
+			// Redirect to the dashboard
+			router.push("/dashboard");
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				console.error("Facebook Sign-In Error:", error.message);
+				setError(error.message);
+			}
+		}
 	};
 
 	return (
@@ -178,7 +222,20 @@ const Signup = () => {
 					</Button>
 				</form>
 			</Form>
-
+			<div className="mt-4 space-y-4">
+				<Button
+					onClick={handleGoogleSignup}
+					className="w-full rounded-md border bg-white py-2 font-semibold text-black hover:bg-blue-600 hover:text-white"
+				>
+					Sign Up with Google <img src="assets/images/google.png" alt="Google" className="w-10" />
+				</Button>
+				<Button
+					onClick={handleFacebookSignup}
+					className="w-full rounded-md border bg-white py-2 font-semibold text-black group hover:bg-blue-600 hover:text-white"
+				>
+					Sign Up with Facebook <FaFacebook className="w-8 h-8 fill-blue-500 group-hover:fill-white" />
+				</Button>
+			</div>
 			{/* Success Dialog */}
 			<AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
 				<AlertDialogContent className="bg-white">
