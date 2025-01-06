@@ -14,6 +14,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BurgerMenu from "./BurgerMenu";
 import { UserCircle } from "lucide-react";
+import useAuthStore from "@/app-store/AuthStore";
 
 export type ListItem = {
 	list: string;
@@ -24,16 +25,15 @@ type NavbarProps = {
 };
 export const Navbar: React.FC<NavbarProps> = props => {
 	const [open, setOpen] = useState(false);
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+	const { isLoggedIn, setAuth } = useAuthStore();
 	useEffect(() => {
 		const token = localStorage.getItem("token");
 		const userName = localStorage.getItem("username");
 		if (token && userName) {
-			setIsLoggedIn(true);
-		} else {
-			setIsLoggedIn(false);
+			setAuth(token, userName);
 		}
-	}, []);
+	}, [setAuth, isLoggedIn]);
 	return (
 		<section className="relative z-[2] font-montserrat">
 			<nav className="relative z-10 mx-auto flex max-w-[1440px] justify-between bg-white p-6 px-5 lg:px-20">

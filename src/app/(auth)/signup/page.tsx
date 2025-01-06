@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, facebookProvider, googleProvider, sendVerificationEmail } from "@/client/firebase";
 import { FaFacebook } from "react-icons/fa";
+import useAuthStore from "@/app-store/AuthStore";
 
 const signupSchema = z
 	.object({
@@ -36,6 +37,7 @@ const signupSchema = z
 	});
 
 const Signup = () => {
+	const { setAuth } = useAuthStore();
 	const router = useRouter();
 	const [error, setError] = useState("");
 	const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -64,10 +66,14 @@ const Signup = () => {
 			const user = userCredential.user;
 			await sendVerificationEmail();
 
+			// Retrieve the ID token
+			const token = await user.getIdToken();
 			console.log("Signup success:", user);
-			console.log("Verification email sent!");
 
-			setShowSuccessDialog(true); // Show success dialog
+			setAuth(token, user.email || values.email);
+
+			// Show success dialog
+			setShowSuccessDialog(true);
 		} catch (err: unknown) {
 			if (err instanceof Error) {
 				console.error(err);
@@ -76,28 +82,32 @@ const Signup = () => {
 				console.error("Unknown error:", err);
 				setError("An unknown error occurred.");
 			}
+		} finally {
+			setIsLoading(false);
 		}
-
-		setIsLoading(false);
 	};
+
 	const handleGoogleSignup = async () => {
 		try {
 			const result = await signInWithPopup(auth, googleProvider);
-			const user = result.user;
 
-			// Retrieve the ID token
-			const token = await user.getIdToken();
-			console.log("Google Sign-In Success:", user);
+			const token = await result.user.getIdToken();
+			const username = result.user.displayName || result.user.email || "Google User";
 
-			// Store the token in local storage
 			localStorage.setItem("token", token);
+			localStorage.setItem("username", username);
+
+			setAuth(token, username); // Set global state
 
 			// Redirect to the dashboard
 			router.push("/dashboard");
 		} catch (error: unknown) {
 			if (error instanceof Error) {
-				console.error("Google Sign-In Error:", error.message);
+				console.error("Google Sign-Up Error:", error.message);
 				setError(error.message);
+			} else {
+				console.error("Unknown error:", error);
+				setError("An unknown error occurred.");
 			}
 		}
 	};
@@ -105,21 +115,24 @@ const Signup = () => {
 	const handleFacebookSignup = async () => {
 		try {
 			const result = await signInWithPopup(auth, facebookProvider);
-			const user = result.user;
+			
+			const token = await result.user.getIdToken();
+			const username = result.user.displayName || result.user.email || "Facebook User";
 
-			// Retrieve the ID token
-			const token = await user.getIdToken();
-			console.log("Facebook Sign-In Success:", user);
-
-			// Store the token in local storage
 			localStorage.setItem("token", token);
+			localStorage.setItem("username", username);
+
+			setAuth(token, username); // Set global state
 
 			// Redirect to the dashboard
 			router.push("/dashboard");
 		} catch (error: unknown) {
 			if (error instanceof Error) {
-				console.error("Facebook Sign-In Error:", error.message);
+				console.error("Facebook Sign-Up Error:", error.message);
 				setError(error.message);
+			} else {
+				console.error("Unknown error:", error);
+				setError("An unknown error occurred.");
 			}
 		}
 	};
@@ -231,9 +244,9 @@ const Signup = () => {
 				</Button>
 				<Button
 					onClick={handleFacebookSignup}
-					className="w-full rounded-md border bg-white py-2 font-semibold text-black group hover:bg-blue-600 hover:text-white"
+					className="group w-full rounded-md border bg-white py-2 font-semibold text-black hover:bg-blue-600 hover:text-white"
 				>
-					Sign Up with Facebook <FaFacebook className="w-8 h-8 fill-blue-500 group-hover:fill-white" />
+					Sign Up with Facebook <FaFacebook className="h-8 w-8 fill-blue-500 group-hover:fill-white" />
 				</Button>
 			</div>
 			{/* Success Dialog */}

@@ -9,12 +9,14 @@ import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/client/firebase";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, facebookProvider, googleProvider } from "@/client/firebase";
+import { FaFacebook } from "react-icons/fa";
+import useAuthStore from "@/app-store/AuthStore";
 
 // Schema for form validation using Zod
 const loginSchema = z.object({
-	username: z.string().min(1, {
+	email: z.string().min(1, {
 		message: "Username is required"
 	}),
 	password: z.string().min(1, {
@@ -26,11 +28,12 @@ const Login = () => {
 	const router = useRouter();
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const { setAuth } = useAuthStore();
 
 	const form = useForm({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
-			username: "",
+			email: "",
 			password: ""
 		}
 	});
@@ -40,25 +43,79 @@ const Login = () => {
 		setError("");
 		try {
 			// Firebase sign-in
-			const userCredential = await signInWithEmailAndPassword(auth, values.username, values.password);
+			const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
 
-			// Token for API requests (if needed)
+			// Token for API requests
 			const token = await userCredential.user.getIdToken();
+			const username = userCredential.user.displayName || values.email || "User";
+
 			localStorage.setItem("token", token);
+			localStorage.setItem("username", username);
+
+			setAuth(token, username); // Set global state
 
 			console.log("Login success:", userCredential.user);
 			router.push("/dashboard");
 		} catch (err: unknown) {
 			if (err instanceof Error) {
-			  console.error(err);
-			  setError(err.message || "An error occurred during login");
+				console.error(err);
+				setError(err.message || "An error occurred during login");
 			} else {
-			  console.error("Unknown error:", err);
-			  setError("An unknown error occurred.");
+				console.error("Unknown error:", err);
+				setError("An unknown error occurred.");
 			}
-		  }
-		  
-		setIsLoading(false);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+	const handleGoogleLogin = async () => {
+		try {
+			const result = await signInWithPopup(auth, googleProvider);
+			console.log("Google Login Success:", result.user);
+
+			const token = await result.user.getIdToken();
+			const username = result.user.displayName || result.user.email || "Google User";
+
+			localStorage.setItem("token", token);
+			localStorage.setItem("username", username);
+
+			setAuth(token, username); // Set global state
+
+			router.push("/dashboard"); // Redirect to dashboard
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				console.error("Google Login Error:", err.message);
+				setError(err.message);
+			} else {
+				console.error("Unknown error:", err);
+				setError("An unknown error occurred.");
+			}
+		}
+	};
+
+	const handleFacebookLogin = async () => {
+		try {
+			const result = await signInWithPopup(auth, facebookProvider);
+			console.log("Facebook Login Success:", result.user);
+
+			const token = await result.user.getIdToken();
+			const username = result.user.displayName || result.user.email || "Facebook User";
+
+			localStorage.setItem("token", token);
+			localStorage.setItem("username", username);
+
+			setAuth(token, username); // Set global state
+
+			router.push("/dashboard"); // Redirect to dashboard
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				console.error("Facebook Login Error:", err.message);
+				setError(err.message);
+			} else {
+				console.error("Unknown error:", err);
+				setError("An unknown error occurred.");
+			}
+		}
 	};
 
 	return (
@@ -69,13 +126,13 @@ const Login = () => {
 				<form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
 					<FormField
 						control={form.control}
-						name="username"
+						name="email"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel className="text-sm font-semibold text-gray-700">Username</FormLabel>
+								<FormLabel className="text-sm font-semibold text-gray-700">Email</FormLabel>
 								<FormControl>
 									<Input
-										placeholder="Enter your username"
+										placeholder="Enter your email"
 										{...field}
 										className="rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 									/>
@@ -124,6 +181,21 @@ const Login = () => {
 					</div>
 				</form>
 			</Form>
+
+			<div className="mt-4 space-y-4">
+				<Button
+					onClick={handleGoogleLogin}
+					className="w-full rounded-md border bg-white py-2 font-semibold text-black hover:bg-blue-600 hover:text-white"
+				>
+					Login with Google <img src="assets/images/google.png" alt="Google" className="w-10" />
+				</Button>
+				<Button
+					onClick={handleFacebookLogin}
+					className="group w-full rounded-md border bg-white py-2 font-semibold text-black hover:bg-blue-600 hover:text-white"
+				>
+					Login with Facebook <FaFacebook className="h-8 w-8 fill-blue-500 group-hover:fill-white" />
+				</Button>
+			</div>
 		</div>
 	);
 };
