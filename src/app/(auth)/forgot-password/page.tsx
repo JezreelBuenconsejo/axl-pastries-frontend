@@ -1,24 +1,15 @@
-"use client";
+"use client"
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-	AlertDialog,
-	AlertDialogContent,
-	AlertDialogHeader,
-	AlertDialogFooter,
-	AlertDialogTitle,
-	AlertDialogDescription
-} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import AxlPastriesClient from "@/client/client";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "@/client/firebase";
 
 const forgotPasswordSchema = z.object({
 	email: z.string().email("Invalid email address")
@@ -27,7 +18,6 @@ const forgotPasswordSchema = z.object({
 const ForgotPassword = () => {
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
-	const [dialogOpen, setDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const form = useForm({
 		resolver: zodResolver(forgotPasswordSchema),
@@ -42,13 +32,11 @@ const ForgotPassword = () => {
 		setError("");
 
 		try {
-			const response = await AxlPastriesClient.forgotPassword(values.email);
-			setMessage(response.message);
-			setDialogOpen(true);
-		} catch (err) {
+			await sendPasswordResetEmail(auth, values.email);
+			setMessage("A password reset email has been sent to your email address.");
+		} catch (err: unknown) {
 			console.error(err);
-			setError("An error occurred. Please try again.");
-			setDialogOpen(true);
+			setError("Failed to send password reset email. Please try again.");
 		}
 		setIsLoading(false);
 	};
@@ -80,32 +68,10 @@ const ForgotPassword = () => {
 							</Button>
 						</form>
 					</Form>
+					{message && <p className="mt-4 text-center text-green-500">{message}</p>}
+					{error && <p className="mt-4 text-center text-red-500">{error}</p>}
 				</CardContent>
 			</Card>
-
-			{/* Alert Dialog */}
-			<AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-				<AlertDialogContent className="bg-white">
-					<AlertDialogHeader>
-						<AlertDialogTitle className={cn("text-2xl", error ? "text-red-500" : "text-main-purple")}>
-							{error ? "Error" : "Success"}
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							{error || (
-								<div className="flex flex-col gap-1">
-									{message}{" "}
-									<Link href="/" className="font-medium text-blue-500 underline">
-										Go back to Home
-									</Link>
-								</div>
-							)}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<Button onClick={() => setDialogOpen(false)}>Close</Button>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
 		</div>
 	);
 };

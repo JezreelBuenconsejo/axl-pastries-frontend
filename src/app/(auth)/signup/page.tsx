@@ -14,10 +14,11 @@ import {
 	AlertDialogDescription
 } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import AxlPastriesClient from "@/client/client";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, sendVerificationEmail } from "@/client/firebase";
 
 const signupSchema = z
 	.object({
@@ -52,23 +53,30 @@ const Signup = () => {
 	});
 
 	const handleSignup = async (values: z.infer<typeof signupSchema>) => {
-		setError("");
 		setIsLoading(true);
+		setError("");
 		try {
-			const response = await AxlPastriesClient.registerUser({
-				username: values.username,
-				email: values.email,
-				password: values.password,
-				first_name: values.firstName,
-				last_name: values.lastName
-			});
+			// Firebase signup
+			const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
 
-			console.log("Signup success:", response.message);
+			// Send email verification
+			const user = userCredential.user;
+			await sendVerificationEmail();
+
+			console.log("Signup success:", user);
+			console.log("Verification email sent!");
+
 			setShowSuccessDialog(true); // Show success dialog
-		} catch (err) {
-			console.error(err);
-			setError("An error occurred. Please try again.");
-		}
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+			  console.error(err);
+			  setError(err.message || "An error occurred during signup");
+			} else {
+			  console.error("Unknown error:", err);
+			  setError("An unknown error occurred.");
+			}
+		  }
+		  
 		setIsLoading(false);
 	};
 

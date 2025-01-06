@@ -9,7 +9,8 @@ import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import AxlPastriesClient from "@/client/client";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/client/firebase";
 
 // Schema for form validation using Zod
 const loginSchema = z.object({
@@ -38,21 +39,25 @@ const Login = () => {
 		setIsLoading(true);
 		setError("");
 		try {
-			const response = await AxlPastriesClient.userLogin({
-				username: values.username,
-				password: values.password
-			});
+			// Firebase sign-in
+			const userCredential = await signInWithEmailAndPassword(auth, values.username, values.password);
 
-			console.log("Login success:", response.token);
+			// Token for API requests (if needed)
+			const token = await userCredential.user.getIdToken();
+			localStorage.setItem("token", token);
 
-			localStorage.setItem("token", response.token);
-			localStorage.setItem("username", values.username);
-
+			console.log("Login success:", userCredential.user);
 			router.push("/dashboard");
-		} catch (err) {
-			console.log(err);
-			setError("Username or Password is incorrect");
-		}
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+			  console.error(err);
+			  setError(err.message || "An error occurred during login");
+			} else {
+			  console.error("Unknown error:", err);
+			  setError("An unknown error occurred.");
+			}
+		  }
+		  
 		setIsLoading(false);
 	};
 

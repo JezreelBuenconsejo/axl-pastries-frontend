@@ -1,24 +1,16 @@
-"use client";
+"use client"
 
-import React, { useState, useMemo, Suspense } from "react";
-import AxlPastriesClient from "@/client/client";
+import React, { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	AlertDialog,
-	AlertDialogContent,
-	AlertDialogHeader,
-	AlertDialogFooter,
-	AlertDialogTitle,
-	AlertDialogDescription
-} from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+import { confirmPasswordReset } from "firebase/auth";
+import { auth } from "@/client/firebase";
 
 const resetPasswordSchema = z
 	.object({
@@ -30,18 +22,12 @@ const resetPasswordSchema = z
 		path: ["confirmPassword"]
 	});
 
-const ResetPasswordComponent = () => {
+const ResetPassword = () => {
 	const searchParams = useSearchParams();
+	const oobCode = useMemo(() => searchParams.get("oobCode"), [searchParams]);
 
-	const username = useMemo(() => searchParams.get("username"), [searchParams]);
-	const resetCode = useMemo(() => searchParams.get("code"), [searchParams]);
-
-	const [dialogOpen, setDialogOpen] = useState(false);
-	const [dialogContent, setDialogContent] = useState({
-		title: "",
-		description: "",
-		isError: false
-	});
+	const [message, setMessage] = useState("");
+	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm({
@@ -54,32 +40,21 @@ const ResetPasswordComponent = () => {
 
 	const handleResetPassword = async (values: z.infer<typeof resetPasswordSchema>) => {
 		setIsLoading(true);
-		if (!username || !resetCode) {
-			setDialogContent({
-				title: "Error",
-				description: "Invalid reset link. Please try again.",
-				isError: true
-			});
-			setDialogOpen(true);
+		setMessage("");
+		setError("");
+
+		if (!oobCode) {
+			setError("Invalid or missing reset code. Please try again.");
+			setIsLoading(false);
 			return;
 		}
 
 		try {
-			const response = await AxlPastriesClient.resetPassword(resetCode, values.password, username);
-			setDialogContent({
-				title: "Success",
-				description: response.message || "Password reset successfully!",
-				isError: false
-			});
-			setDialogOpen(true);
-		} catch (err) {
+			await confirmPasswordReset(auth, oobCode, values.password);
+			setMessage("Password reset successfully! You can now log in.");
+		} catch (err: unknown) {
 			console.error(err);
-			setDialogContent({
-				title: "Error",
-				description: "An unexpected error occurred. Please try again.",
-				isError: true
-			});
-			setDialogOpen(true);
+			setError("Failed to reset password. Please try again.");
 		}
 		setIsLoading(false);
 	};
@@ -126,38 +101,11 @@ const ResetPasswordComponent = () => {
 							</Button>
 						</form>
 					</Form>
+					{message && <p className="mt-4 text-center text-green-500">{message}</p>}
+					{error && <p className="mt-4 text-center text-red-500">{error}</p>}
 				</CardContent>
 			</Card>
-
-			{/* Alert Dialog */}
-			<AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-				<AlertDialogContent className="bg-white">
-					<AlertDialogHeader>
-						<AlertDialogTitle>{dialogContent.title}</AlertDialogTitle>
-						<AlertDialogDescription className="flex flex-col gap-1">
-							{dialogContent.description}
-							{!dialogContent.isError && (
-								<Link href="/login" className="font-medium text-blue-500 underline">
-									{" "}
-									Go to Login
-								</Link>
-							)}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<Button onClick={() => setDialogOpen(false)}>Close</Button>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
 		</div>
-	);
-};
-
-const ResetPassword: React.FC = () => {
-	return (
-		<Suspense fallback={<div>Loading...</div>}>
-			<ResetPasswordComponent />
-		</Suspense>
 	);
 };
 
