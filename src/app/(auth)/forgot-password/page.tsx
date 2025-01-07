@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/client/firebase";
+import { supabase } from "@/client/supabase";
 
 const forgotPasswordSchema = z.object({
 	email: z.string().email("Invalid email address")
@@ -19,6 +18,7 @@ const ForgotPassword = () => {
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+
 	const form = useForm({
 		resolver: zodResolver(forgotPasswordSchema),
 		defaultValues: {
@@ -32,13 +32,21 @@ const ForgotPassword = () => {
 		setError("");
 
 		try {
-			await sendPasswordResetEmail(auth, values.email);
+			const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
+				redirectTo: `${window.location.origin}/reset-password`
+			});
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
 			setMessage("A password reset email has been sent to your email address.");
 		} catch (err: unknown) {
 			console.error(err);
 			setError("Failed to send password reset email. Please try again.");
+		} finally {
+			setIsLoading(false);
 		}
-		setIsLoading(false);
 	};
 
 	return (
@@ -56,7 +64,7 @@ const ForgotPassword = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Email Address</FormLabel>
-										<FormControl className="border-black">
+										<FormControl>
 											<Input placeholder="Enter your email" {...field} />
 										</FormControl>
 										<FormMessage />

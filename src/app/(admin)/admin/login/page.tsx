@@ -8,9 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/client/firebase";
+import { supabase } from "@/client/supabase";
 import { FaSpinner } from "react-icons/fa";
+import useAuthStore from "@/app-store/AuthStore";
 
 // Define validation schema using Zod
 const formSchema = z.object({
@@ -19,6 +19,7 @@ const formSchema = z.object({
 });
 
 export default function AdminLogin() {
+  const {setAuth} = useAuthStore();
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -36,16 +37,26 @@ export default function AdminLogin() {
       setIsLoading(true);
       setError(null);
 
-      // Firebase Admin Login
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      // Supabase Admin Login
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
 
-      // Retrieve ID token and store it in localStorage
-      const token = await userCredential.user.getIdToken();
-      localStorage.setItem("token", token);
-      localStorage.setItem("email", values.email);
+      if (error) {
+        throw new Error("Invalid credentials");
+      }
 
-      console.log("Admin Login Success:", userCredential.user);
-      router.push("/admin/dashboard");
+      if (data.session) {
+        const token = data.session.access_token;
+
+        // Store token and email in localStorage
+        localStorage.setItem("token", token);
+        setAuth(token);
+
+        console.log("Admin Login Success:", data.user);
+        router.push("/admin/dashboard");
+      }
     } catch (err) {
       console.error("Admin Login Error:", err);
       setError("Invalid email or password. Please try again.");

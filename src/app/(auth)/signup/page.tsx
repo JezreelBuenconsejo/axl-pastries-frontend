@@ -11,14 +11,13 @@ import {
 	AlertDialogHeader,
 	AlertDialogFooter,
 	AlertDialogTitle,
-	AlertDialogDescription
+	AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, facebookProvider, googleProvider, sendVerificationEmail } from "@/client/firebase";
+import { supabase } from "@/client/supabase";
 import { FaFacebook } from "react-icons/fa";
 import useAuthStore from "@/app-store/AuthStore";
 
@@ -29,17 +28,17 @@ const signupSchema = z
 		username: z.string().min(1, "Username is required"),
 		email: z.string().email("Invalid email address"),
 		password: z.string().min(6, "Password must be at least 6 characters"),
-		confirmPassword: z.string().min(6, "Password must be at least 6 characters")
+		confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
 	})
-	.refine(data => data.password === data.confirmPassword, {
+	.refine((data) => data.password === data.confirmPassword, {
 		message: "Passwords do not match",
-		path: ["confirmPassword"]
+		path: ["confirmPassword"],
 	});
 
 const Signup = () => {
 	const { setAuth } = useAuthStore();
 	const router = useRouter();
-	const [error, setError] = useState("");
+	const [error, setError] = useState<string | null>(null);
 	const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -51,37 +50,38 @@ const Signup = () => {
 			username: "",
 			email: "",
 			password: "",
-			confirmPassword: ""
-		}
+			confirmPassword: "",
+		},
 	});
 
 	const handleSignup = async (values: z.infer<typeof signupSchema>) => {
 		setIsLoading(true);
-		setError("");
+		setError(null);
+
 		try {
-			// Firebase signup
-			const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+			// Supabase signup
+			const { data, error } = await supabase.auth.signUp({
+				email: values.email,
+				password: values.password,
+				options: {
+					data: {
+						full_name: `${values.firstName} ${values.lastName}`,
+					},
+					emailRedirectTo: "http://localhost:3000/dashboard",
+				},
+			});
 
-			// Send email verification
-			const user = userCredential.user;
-			await sendVerificationEmail();
-
-			// Retrieve the ID token
-			const token = await user.getIdToken();
-			console.log("Signup success:", user);
-
-			setAuth(token, user.email || values.email);
-
-			// Show success dialog
-			setShowSuccessDialog(true);
-		} catch (err: unknown) {
-			if (err instanceof Error) {
-				console.error(err);
-				setError(err.message || "An error occurred during signup");
-			} else {
-				console.error("Unknown error:", err);
-				setError("An unknown error occurred.");
+			if (error) {
+				throw new Error(error.message);
 			}
+
+			if (data.user) {
+				console.log("Signup success:", data.user);
+				setShowSuccessDialog(true);
+			}
+		} catch (err: unknown) {
+			console.error(err);
+			setError(err instanceof Error ? err.message : "An unknown error occurred.");
 		} finally {
 			setIsLoading(false);
 		}
@@ -89,51 +89,41 @@ const Signup = () => {
 
 	const handleGoogleSignup = async () => {
 		try {
-			const result = await signInWithPopup(auth, googleProvider);
+			const { data, error } = await supabase.auth.signInWithOAuth({
+				provider: "google",
+				options: {
+					redirectTo: `${window.location.origin}/dashboard` // Redirect after login
+				}
+			});
 
-			const token = await result.user.getIdToken();
-			const username = result.user.displayName || result.user.email || "Google User";
-
-			localStorage.setItem("token", token);
-			localStorage.setItem("username", username);
-
-			setAuth(token, username); // Set global state
-
-			// Redirect to the dashboard
-			router.push("/dashboard");
-		} catch (error: unknown) {
-			if (error instanceof Error) {
-				console.error("Google Sign-Up Error:", error.message);
-				setError(error.message);
-			} else {
-				console.error("Unknown error:", error);
-				setError("An unknown error occurred.");
+			if (error) {
+				throw new Error(error.message);
 			}
+
+			console.log("Google Signup Success:", data);
+		} catch (err: unknown) {
+			console.error(err);
+			setError(err instanceof Error ? err.message : "An unknown error occurred.");
 		}
 	};
 
 	const handleFacebookSignup = async () => {
 		try {
-			const result = await signInWithPopup(auth, facebookProvider);
-			
-			const token = await result.user.getIdToken();
-			const username = result.user.displayName || result.user.email || "Facebook User";
+			const { data, error } = await supabase.auth.signInWithOAuth({
+				provider: "facebook",
+				options: {
+					redirectTo: `${window.location.origin}/dashboard` // Redirect after login
+				}
+			});
 
-			localStorage.setItem("token", token);
-			localStorage.setItem("username", username);
-
-			setAuth(token, username); // Set global state
-
-			// Redirect to the dashboard
-			router.push("/dashboard");
-		} catch (error: unknown) {
-			if (error instanceof Error) {
-				console.error("Facebook Sign-Up Error:", error.message);
-				setError(error.message);
-			} else {
-				console.error("Unknown error:", error);
-				setError("An unknown error occurred.");
+			if (error) {
+				throw new Error(error.message);
 			}
+
+			console.log("Facebook Signup Success:", data);
+		} catch (err: unknown) {
+			console.error(err);
+			setError(err instanceof Error ? err.message : "An unknown error occurred.");
 		}
 	};
 

@@ -29,10 +29,10 @@ export const Navbar: React.FC<NavbarProps> = props => {
 	const { isLoggedIn, setAuth } = useAuthStore();
 	useEffect(() => {
 		const token = localStorage.getItem("token");
-		const userName = localStorage.getItem("username");
-		if (token && userName) {
-			setAuth(token, userName);
+		if (token) {
+			setAuth(token);
 		}
+		console.log(isLoggedIn)
 	}, [setAuth, isLoggedIn]);
 	return (
 		<section className="relative z-[2] font-montserrat">
