@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
-import AxlPastriesClient from "@/client/client";
+import { auth } from "@/client/firebase";
+import { getIdTokenResult } from "firebase/auth";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
@@ -13,26 +14,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
 	useEffect(() => {
 		const verifyAdmin = async () => {
-			const storedToken = localStorage.getItem("token");
+			const user = auth.currentUser;
 
-			if (!storedToken) {
+			if (!user) {
 				router.push("/admin/login");
 				return;
 			}
 
 			try {
-				const response = await AxlPastriesClient.verifyAdmin();
+				// Get ID token with custom claims
+				const tokenResult = await getIdTokenResult(user);
 
-				if (response.role !== "admin") {
+				// Check if the "admin" claim is present
+				if (!tokenResult.claims.admin) {
 					alert("You are not an admin");
 					router.push("/dashboard");
 					throw new Error("Unauthorized");
 				}
 
-				setUsername(response.username); // Assuming username is returned
+				setUsername(user.displayName ?? user.email ?? "Admin"); // Set username from Firebase user data
 				setLoading(false);
 			} catch (error) {
-				console.log(error);
+				console.error(error);
 				alert("You are not an admin");
 				router.push("/dashboard");
 			}

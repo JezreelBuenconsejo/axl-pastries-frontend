@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from "axios";
 import {
-	ADMIN_LOGIN,
 	CAKES_ENDPOINT,
 	ADD_CAKE_ENDPOINT,
 	DELETE_CAKE_ENDPOINT,
@@ -10,15 +9,9 @@ import {
 	ADD_CATEGORY_ENDPOINT,
 	DELETE_CATEGORY_ENDPOINT,
 	UPDATE_CATEGORY_ENDPOINT,
-	VERIFY_ADMIN,
-	CONFIRM_ACCOUNT,
-	FORGOT_PASSWORD,
-	RESET_PASSWORD,
-	REGISTER,
-	LOGIN,
-	USER_DETAILS
+	USER_DETAILS,
+	VERIFY_ADMIN
 } from "./environment";
-import { LoginRequest, AdminLoginResponse, RegisterUserRequest } from "@/types/auth";
 import { Cake } from "@/types/cake";
 import { Category } from "@/types/categories";
 import { UserDetails } from "@/types/user";
@@ -46,46 +39,9 @@ class AxlPastriesClient {
 			return config;
 		});
 	}
-
-	// Admin Login
-	async adminLogin(data: LoginRequest): Promise<AdminLoginResponse> {
-		const res = await this.client.post<AdminLoginResponse>(ADMIN_LOGIN, data);
-		return res.data;
-	}
-
 	// Verify Admin
 	async verifyAdmin(): Promise<{ role: string; username: string }> {
 		const res = await this.client.post<{ role: string; username: string }>(VERIFY_ADMIN, {});
-		return res.data;
-	}
-
-	// Confirm Account
-	async confirmAccount(code: string, username: string): Promise<{ status: number; data: { message: string } }> {
-		const res = await this.client.post<{ message: string }>(CONFIRM_ACCOUNT, { code, username });
-		return { status: res.status, data: res.data };
-	}
-
-	// Forgot Password
-	async forgotPassword(username: string): Promise<{ message: string }> {
-		const res = await this.client.post<{ message: string }>(FORGOT_PASSWORD, { username });
-		return res.data;
-	}
-
-	// Reset Password
-	async resetPassword(code: string, password: string, username: string): Promise<{ message: string }> {
-		const res = await this.client.post<{ message: string }>(RESET_PASSWORD, { code, password, username });
-		return res.data;
-	}
-
-	// User Login
-	async userLogin(data: LoginRequest): Promise<{ token: string }> {
-		const res = await this.client.post<{ token: string }>(LOGIN, data);
-		return res.data;
-	}
-
-	// Register User
-	async registerUser(data: RegisterUserRequest): Promise<{ message: string }> {
-		const res = await this.client.post<{ message: string }>(REGISTER, data);
 		return res.data;
 	}
 
