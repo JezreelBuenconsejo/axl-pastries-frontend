@@ -49,21 +49,19 @@ const Login = () => {
 			});
 
 			if (error) {
-				throw new Error(error.message); // Handle Supabase error
+				throw new Error(error.message); 
 			}
 
-			// Token and user information
 			const token = data.session?.access_token;
 			const email = data.user?.email;
 
-			// Save token and username to localStorage
 			if (token && email) {
 				localStorage.setItem("token", token);
 				localStorage.setItem("username", email);
 
-				setAuth(token, email); // Set global state
+				setAuth(token, email);
 				console.log("Login success:", email);
-				router.push("/dashboard"); // Navigate to dashboard
+				router.push("/dashboard");
 			} else {
 				throw new Error("Login failed. Please try again.");
 			}
@@ -83,13 +81,7 @@ const Login = () => {
 	const handleGoogleLogin = () => {
 		handleOAuth(
 			"google",
-			window.location.origin,
-			(token, username) => {
-				localStorage.setItem("token", token);
-				localStorage.setItem("username", username);
-				setAuth(token, username); // Update global state
-				router.push("/dashboard"); // Redirect to dashboard
-			},
+			`${window.location.origin}/auth/via-socials`,
 			error => {
 				setError(error);
 			}
@@ -99,13 +91,7 @@ const Login = () => {
 	const handleFacebookLogin = () => {
 		handleOAuth(
 			"facebook",
-			window.location.origin,
-			(token, username) => {
-				localStorage.setItem("token", token);
-				localStorage.setItem("username", username);
-				setAuth(token, username); // Update global state
-				router.push("/dashboard"); // Redirect to dashboard
-			},
+			`${window.location.origin}/auth/via-socials`,
 			error => {
 				setError(error);
 			}

@@ -12,7 +12,16 @@ const CustomerDashboard = () => {
 
 	useEffect(() => {
 		const fetchUserDetails = async () => {
-			const token = localStorage.getItem("token");
+			const tokenFromLocalStorage = localStorage.getItem("token");
+			const fragment = new URLSearchParams(window.location.hash.slice(1)); // Extract the hash fragment
+			const tokenFromURL = fragment.get("access_token");
+
+			if (tokenFromURL) {
+				localStorage.setItem("token", tokenFromURL);
+				window.location.hash = ""; // Clear the fragment to avoid confusion
+			}
+
+			const token = tokenFromURL || tokenFromLocalStorage;
 
 			if (!token) {
 				router.push("/login");
@@ -20,9 +29,7 @@ const CustomerDashboard = () => {
 			}
 
 			try {
-				setUserDetails({
-					token: token
-				});
+				setUserDetails({ token });
 			} catch (error) {
 				console.error("Error fetching user details:", error);
 				router.push("/login");
@@ -57,8 +64,6 @@ const CustomerDashboard = () => {
 				</CardHeader>
 				<CardContent>
 					<div className="space-y-4">
-						<p className="text-lg font-medium"></p>
-						<p className="text-lg font-medium"></p>
 						<Button
 							className="w-full rounded-md bg-red-500 py-2 font-semibold text-white hover:bg-red-600"
 							onClick={handleLogout}

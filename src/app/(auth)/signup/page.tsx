@@ -18,14 +18,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { FaFacebook } from "react-icons/fa";
-import useAuthStore from "@/app-store/AuthStore";
 import { handleOAuth, supabase } from "@/client/supabase";
 
 const signupSchema = z
 	.object({
 		firstName: z.string().min(1, "First name is required"),
 		lastName: z.string().min(1, "Last name is required"),
-		username: z.string().min(1, "Username is required"),
 		email: z.string().email("Invalid email address"),
 		password: z.string().min(6, "Password must be at least 6 characters"),
 		confirmPassword: z.string().min(6, "Password must be at least 6 characters")
@@ -36,7 +34,6 @@ const signupSchema = z
 	});
 
 const Signup = () => {
-	const { setAuth } = useAuthStore();
 	const router = useRouter();
 	const [error, setError] = useState("");
 	const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -47,7 +44,6 @@ const Signup = () => {
 		defaultValues: {
 			firstName: "",
 			lastName: "",
-			username: "",
 			email: "",
 			password: "",
 			confirmPassword: ""
@@ -57,29 +53,23 @@ const Signup = () => {
 	const handleSignup = async (values: z.infer<typeof signupSchema>) => {
 		setIsLoading(true);
 		setError("");
-
 		try {
-			// Supabase sign-up
 			const { data, error } = await supabase.auth.signUp({
 				email: values.email,
 				password: values.password,
 				options: {
 					data: {
-						first_name: values.firstName, // Custom metadata
-						last_name: values.lastName, // Custom metadata
-						username: values.username // Custom metadata
+						first_name: values.firstName, 
+						last_name: values.lastName, 
+						role: "user"
 					}
 				}
 			});
-
 			if (error) {
-				throw new Error(error.message); // Handle Supabase error
+				throw new Error(error.message); 
 			}
-
 			if (data?.user) {
 				console.log("Signup success:", data.user);
-
-				// Show success dialog
 				setShowSuccessDialog(true);
 			} else {
 				throw new Error("Signup failed. Please try again.");
@@ -100,13 +90,7 @@ const Signup = () => {
 	const handleGoogleSignup = () => {
 		handleOAuth(
 			"google",
-			window.location.origin,
-			(token, username) => {
-				localStorage.setItem("token", token);
-				localStorage.setItem("username", username);
-				setAuth(token, username); // Update global state
-				router.push("/dashboard"); // Redirect to dashboard
-			},
+			`${window.location.origin}/auth/via-socials`,
 			error => {
 				setError(error);
 			}
@@ -116,13 +100,7 @@ const Signup = () => {
 	const handleFacebookSignup = () => {
 		handleOAuth(
 			"facebook",
-			window.location.origin,
-			(token, username) => {
-				localStorage.setItem("token", token);
-				localStorage.setItem("username", username);
-				setAuth(token, username); // Update global state
-				router.push("/dashboard"); // Redirect to dashboard
-			},
+			`${window.location.origin}/auth/via-socials`,
 			error => {
 				setError(error);
 			}
@@ -161,19 +139,6 @@ const Signup = () => {
 								<FormLabel>Last Name</FormLabel>
 								<FormControl>
 									<Input placeholder="Enter your last name" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="username"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Username</FormLabel>
-								<FormControl>
-									<Input placeholder="Enter your username" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>

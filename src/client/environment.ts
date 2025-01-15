@@ -9,7 +9,7 @@ interface Environments {
 
 const environments: Environments = {
 	dev: {
-		apiRoot: "http://localhost:8080"
+		apiRoot: "https://axl-pastries.up.railway.app"
 	},
 	prod: {
 		apiRoot: "https://axl-pastries.up.railway.app"
