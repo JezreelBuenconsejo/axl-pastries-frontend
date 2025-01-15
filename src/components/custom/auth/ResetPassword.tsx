@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import React, { useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { confirmPasswordReset } from "firebase/auth";
-import { auth } from "@/client/firebase";
+import { supabase } from "@/client/supabase";
 
 const resetPasswordSchema = z
 	.object({
@@ -24,8 +23,8 @@ const resetPasswordSchema = z
 
 const ResetPassword = () => {
 	const searchParams = useSearchParams();
-	const oobCode = useMemo(() => searchParams.get("oobCode"), [searchParams]);
-
+	const router = useRouter();
+	const [accessToken, setAccessToken] = useState<string | null>(null);
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -38,25 +37,75 @@ const ResetPassword = () => {
 		}
 	});
 
+	useEffect(() => {
+		// Check if the access token is in the fragment
+		const fragment = window.location.hash.substring(1);
+		const fragmentParams = new URLSearchParams(fragment);
+		const token = fragmentParams.get("access_token");
+
+		if (token) {
+			// Move the token to the query parameters
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.set("access_token", token);
+			window.history.replaceState(null, "", newUrl.toString());
+
+			// Clear the fragment
+			window.location.hash = "";
+
+			setAccessToken(token);
+			supabase.auth.setSession({
+				access_token: token,
+				refresh_token: ""
+			});
+		} else {
+			// Check if the token is already in query parameters
+			const tokenFromQuery = searchParams.get("access_token");
+			if (tokenFromQuery) {
+				setAccessToken(tokenFromQuery);
+				supabase.auth.setSession({
+					access_token: tokenFromQuery,
+					refresh_token: ""
+				});
+			} else {
+				setError("Invalid or missing reset token.");
+			}
+		}
+	}, [searchParams]);
+
 	const handleResetPassword = async (values: z.infer<typeof resetPasswordSchema>) => {
 		setIsLoading(true);
 		setMessage("");
 		setError("");
 
-		if (!oobCode) {
-			setError("Invalid or missing reset code. Please try again.");
+		if (!accessToken) {
+			setError("Invalid or missing reset token. Please try again.");
 			setIsLoading(false);
 			return;
 		}
 
 		try {
-			await confirmPasswordReset(auth, oobCode, values.password);
+			// Update the user's password
+			const { error: updateError } = await supabase.auth.updateUser({
+				password: values.password
+			});
+
+			if (updateError) {
+				throw new Error(updateError.message);
+			}
+
 			setMessage("Password reset successfully! You can now log in.");
+			setTimeout(() => router.push("/login"), 3000); // Redirect after success
 		} catch (err: unknown) {
-			console.error(err);
-			setError("Failed to reset password. Please try again.");
+			if (err instanceof Error) {
+				console.error(err);
+				setError("Failed to reset password. Please try again.");
+			} else {
+				console.error("Unknown error:", err);
+				setError("An unknown error occurred.");
+			}
+		} finally {
+			setIsLoading(false);
 		}
-		setIsLoading(false);
 	};
 
 	return (

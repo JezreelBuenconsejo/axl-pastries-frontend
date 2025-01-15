@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const CustomerDashboard = () => {
-	const [userDetails, setUserDetails] = useState({token: ""
-	});
+	const [userDetails, setUserDetails] = useState({ token: "" });
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
 
@@ -58,10 +57,8 @@ const CustomerDashboard = () => {
 				</CardHeader>
 				<CardContent>
 					<div className="space-y-4">
-						<p className="text-lg font-medium">
-						</p>
-						<p className="text-lg font-medium">
-						</p>
+						<p className="text-lg font-medium"></p>
+						<p className="text-lg font-medium"></p>
 						<Button
 							className="w-full rounded-md bg-red-500 py-2 font-semibold text-white hover:bg-red-600"
 							onClick={handleLogout}

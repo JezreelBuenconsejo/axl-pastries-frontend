@@ -17,10 +17,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, facebookProvider, googleProvider, sendVerificationEmail } from "@/client/firebase";
 import { FaFacebook } from "react-icons/fa";
 import useAuthStore from "@/app-store/AuthStore";
+import { handleOAuth, supabase } from "@/client/supabase";
 
 const signupSchema = z
 	.object({
@@ -58,22 +57,33 @@ const Signup = () => {
 	const handleSignup = async (values: z.infer<typeof signupSchema>) => {
 		setIsLoading(true);
 		setError("");
+
 		try {
-			// Firebase signup
-			const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+			// Supabase sign-up
+			const { data, error } = await supabase.auth.signUp({
+				email: values.email,
+				password: values.password,
+				options: {
+					data: {
+						first_name: values.firstName, // Custom metadata
+						last_name: values.lastName, // Custom metadata
+						username: values.username // Custom metadata
+					}
+				}
+			});
 
-			// Send email verification
-			const user = userCredential.user;
-			await sendVerificationEmail();
+			if (error) {
+				throw new Error(error.message); // Handle Supabase error
+			}
 
-			// Retrieve the ID token
-			const token = await user.getIdToken();
-			console.log("Signup success:", user);
+			if (data?.user) {
+				console.log("Signup success:", data.user);
 
-			setAuth(token, user.email || values.email);
-
-			// Show success dialog
-			setShowSuccessDialog(true);
+				// Show success dialog
+				setShowSuccessDialog(true);
+			} else {
+				throw new Error("Signup failed. Please try again.");
+			}
 		} catch (err: unknown) {
 			if (err instanceof Error) {
 				console.error(err);
@@ -87,54 +97,36 @@ const Signup = () => {
 		}
 	};
 
-	const handleGoogleSignup = async () => {
-		try {
-			const result = await signInWithPopup(auth, googleProvider);
-
-			const token = await result.user.getIdToken();
-			const username = result.user.displayName || result.user.email || "Google User";
-
-			localStorage.setItem("token", token);
-			localStorage.setItem("username", username);
-
-			setAuth(token, username); // Set global state
-
-			// Redirect to the dashboard
-			router.push("/dashboard");
-		} catch (error: unknown) {
-			if (error instanceof Error) {
-				console.error("Google Sign-Up Error:", error.message);
-				setError(error.message);
-			} else {
-				console.error("Unknown error:", error);
-				setError("An unknown error occurred.");
+	const handleGoogleSignup = () => {
+		handleOAuth(
+			"google",
+			window.location.origin,
+			(token, username) => {
+				localStorage.setItem("token", token);
+				localStorage.setItem("username", username);
+				setAuth(token, username); // Update global state
+				router.push("/dashboard"); // Redirect to dashboard
+			},
+			error => {
+				setError(error);
 			}
-		}
+		);
 	};
 
-	const handleFacebookSignup = async () => {
-		try {
-			const result = await signInWithPopup(auth, facebookProvider);
-			
-			const token = await result.user.getIdToken();
-			const username = result.user.displayName || result.user.email || "Facebook User";
-
-			localStorage.setItem("token", token);
-			localStorage.setItem("username", username);
-
-			setAuth(token, username); // Set global state
-
-			// Redirect to the dashboard
-			router.push("/dashboard");
-		} catch (error: unknown) {
-			if (error instanceof Error) {
-				console.error("Facebook Sign-Up Error:", error.message);
-				setError(error.message);
-			} else {
-				console.error("Unknown error:", error);
-				setError("An unknown error occurred.");
+	const handleFacebookSignup = () => {
+		handleOAuth(
+			"facebook",
+			window.location.origin,
+			(token, username) => {
+				localStorage.setItem("token", token);
+				localStorage.setItem("username", username);
+				setAuth(token, username); // Update global state
+				router.push("/dashboard"); // Redirect to dashboard
+			},
+			error => {
+				setError(error);
 			}
-		}
+		);
 	};
 
 	return (

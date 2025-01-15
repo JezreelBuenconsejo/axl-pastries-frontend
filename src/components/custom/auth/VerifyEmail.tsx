@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { applyActionCode } from "firebase/auth";
-import { auth } from "@/client/firebase";
+import { supabase } from "@/client/supabase";
 import { FaSpinner } from "react-icons/fa";
 import { AlertDialog, AlertDialogDescription, AlertDialogTitle } from "@radix-ui/react-alert-dialog";
 import { AlertDialogContent, AlertDialogFooter, AlertDialogHeader } from "@/components/ui/alert-dialog";
@@ -13,39 +12,43 @@ const VerifyEmail: React.FC = () => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 
-	const oobCode = searchParams.get("oobCode");
+	const accessToken = searchParams.get("access_token");
 
 	const [loading, setLoading] = useState(true);
 	const [status, setStatus] = useState("");
 	const [isSuccess, setIsSuccess] = useState(false);
 
 	useEffect(() => {
-		if (!oobCode) {
+		if (!accessToken) {
 			setStatus("Invalid verification link.");
 			setIsSuccess(false);
 			setLoading(false);
 			return;
 		}
 
-		applyActionCode(auth, oobCode)
-			.then(() => {
-				// Email has been verified
-				setStatus("Email verified successfully!");
-				setIsSuccess(true);
+		supabase.auth
+			.verifyOtp({
+				token_hash: accessToken,
+				type: "signup"
 			})
-			.catch(error => {
-				console.error("Error verifying email:", error);
-				setStatus(
-					error.message.includes("expired") || error.message.includes("invalid")
-						? "Verification link is expired or invalid."
-						: "Failed to verify email. Please try again or contact support."
-				);
-				setIsSuccess(false);
+			.then(({ error }) => {
+				if (error) {
+					console.error("Error verifying email:", error.message);
+					setStatus(
+						error.message.includes("expired") || error.message.includes("invalid")
+							? "Verification link is expired or invalid."
+							: "Failed to verify email. Please try again or contact support."
+					);
+					setIsSuccess(false);
+				} else {
+					setStatus("Email verified successfully!");
+					setIsSuccess(true);
+				}
 			})
 			.finally(() => {
 				setLoading(false);
 			});
-	}, []);
+	}, [accessToken]);
 
 	return (
 		<div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">

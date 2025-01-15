@@ -9,10 +9,9 @@ import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, facebookProvider, googleProvider } from "@/client/firebase";
 import { FaFacebook } from "react-icons/fa";
 import useAuthStore from "@/app-store/AuthStore";
+import { handleOAuth, supabase } from "@/client/supabase";
 
 // Schema for form validation using Zod
 const loginSchema = z.object({
@@ -41,81 +40,76 @@ const Login = () => {
 	const handleLogin = async (values: z.infer<typeof loginSchema>) => {
 		setIsLoading(true);
 		setError("");
+
 		try {
-			// Firebase sign-in
-			const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+			// Supabase sign-in
+			const { data, error } = await supabase.auth.signInWithPassword({
+				email: values.email,
+				password: values.password
+			});
 
-			// Token for API requests
-			const token = await userCredential.user.getIdToken();
-			const username = userCredential.user.displayName || values.email || "User";
+			if (error) {
+				throw new Error(error.message); // Handle Supabase error
+			}
 
-			localStorage.setItem("token", token);
-			localStorage.setItem("username", username);
+			// Token and user information
+			const token = data.session?.access_token;
+			const email = data.user?.email;
 
-			setAuth(token, username); // Set global state
+			// Save token and username to localStorage
+			if (token && email) {
+				localStorage.setItem("token", token);
+				localStorage.setItem("username", email);
 
-			console.log("Login success:", userCredential.user);
-			router.push("/dashboard");
+				setAuth(token, email); // Set global state
+				console.log("Login success:", email);
+				router.push("/dashboard"); // Navigate to dashboard
+			} else {
+				throw new Error("Login failed. Please try again.");
+			}
 		} catch (err: unknown) {
 			if (err instanceof Error) {
 				console.error(err);
-				setError(err.message || "An error occurred during login");
+				setError(err.message);
 			} else {
-				console.error("Unknown error:", err);
 				setError("An unknown error occurred.");
+				console.error("Unknown error:", err);
 			}
 		} finally {
 			setIsLoading(false);
 		}
 	};
-	const handleGoogleLogin = async () => {
-		try {
-			const result = await signInWithPopup(auth, googleProvider);
-			console.log("Google Login Success:", result.user);
 
-			const token = await result.user.getIdToken();
-			const username = result.user.displayName || result.user.email || "Google User";
-
-			localStorage.setItem("token", token);
-			localStorage.setItem("username", username);
-
-			setAuth(token, username); // Set global state
-
-			router.push("/dashboard"); // Redirect to dashboard
-		} catch (err: unknown) {
-			if (err instanceof Error) {
-				console.error("Google Login Error:", err.message);
-				setError(err.message);
-			} else {
-				console.error("Unknown error:", err);
-				setError("An unknown error occurred.");
+	const handleGoogleLogin = () => {
+		handleOAuth(
+			"google",
+			window.location.origin,
+			(token, username) => {
+				localStorage.setItem("token", token);
+				localStorage.setItem("username", username);
+				setAuth(token, username); // Update global state
+				router.push("/dashboard"); // Redirect to dashboard
+			},
+			error => {
+				setError(error);
 			}
-		}
+		);
 	};
 
-	const handleFacebookLogin = async () => {
-		try {
-			const result = await signInWithPopup(auth, facebookProvider);
-			console.log("Facebook Login Success:", result.user);
-
-			const token = await result.user.getIdToken();
-			const username = result.user.displayName || result.user.email || "Facebook User";
-
-			localStorage.setItem("token", token);
-			localStorage.setItem("username", username);
-
-			setAuth(token, username); // Set global state
-
-			router.push("/dashboard"); // Redirect to dashboard
-		} catch (err: unknown) {
-			if (err instanceof Error) {
-				console.error("Facebook Login Error:", err.message);
-				setError(err.message);
-			} else {
-				console.error("Unknown error:", err);
-				setError("An unknown error occurred.");
+	const handleFacebookLogin = () => {
+		handleOAuth(
+			"facebook",
+			window.location.origin,
+			(token, username) => {
+				localStorage.setItem("token", token);
+				localStorage.setItem("username", username);
+				setAuth(token, username); // Update global state
+				router.push("/dashboard"); // Redirect to dashboard
+			},
+			error => {
+				setError(error);
 			}
-		}
+		);
 	};
 
 	return (
