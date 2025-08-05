@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import BurgerMenu from "./BurgerMenu";
 import { UserCircle } from "lucide-react";
 import useAuthStore from "@/app-store/AuthStore";
+import { toast } from "@/hooks/use-toast";
 
 export type ListItem = {
 	list: string;
@@ -34,6 +35,14 @@ export const Navbar: React.FC<NavbarProps> = props => {
 			setAuth(token, userName);
 		}
 	}, [setAuth, isLoggedIn]);
+
+	const linkClicked = () => {
+		toast({
+			title: "Coming Soon!",
+			description: "Currently under development.",
+			duration: 3000,
+		});
+	}
 	return (
 		<section className="relative z-[2] font-montserrat">
 			<nav className="relative z-10 mx-auto flex max-w-[1440px] justify-between bg-white p-6 px-5 lg:px-20">
@@ -51,22 +60,22 @@ export const Navbar: React.FC<NavbarProps> = props => {
 									key={menu.list}
 									className="scale-100 transition-all duration-200 hover:scale-110"
 								>
-									<Link href={menu.path} legacyBehavior passHref>
-										<NavigationMenuLink className="border-b-0 py-1 transition-all duration-200 hover:scale-125 hover:text-main-purple">
+									<Button onClick={linkClicked} variant="none" className="p-0">
+										<NavigationMenuLink className="text-lg border-b-0 py-1 transition-all duration-200 hover:scale-125 hover:text-main-purple">
 											{menu.list}
 										</NavigationMenuLink>
-									</Link>
+									</Button>
 								</NavigationMenuItem>
 							))}
 						</NavigationMenuList>
 					</NavigationMenu>
-					<div className="flex items-center justify-between gap-4">
-						<Button variant="none" className="group h-auto p-0">
+					<div className="items-center justify-between gap-4 hidden sm:flex">
+						<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
 							<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
 						</Button>
-						<Link href={isLoggedIn ? "/dashboard" : "/login"} className="group h-auto p-0">
+						<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
 							<UserCircle className="h-12 w-12 stroke-main-purple transition-all duration-150 group-hover:stroke-main-lightBlue" />
-						</Link>
+						</Button>
 					</div>
 
 					<Button

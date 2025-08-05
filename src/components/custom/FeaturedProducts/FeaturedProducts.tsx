@@ -19,16 +19,16 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = props => {
 				<CarouselContent className="first:pl-5 md:first:pl-20">
 					{React.Children.toArray(
 						props.products.map(item => (
-							<Link href={"/product?id=" + item.id} key={item.id}>
-								<CarouselItem className="px-5 sm:basis-[250px] md:basis-[350px]">
+								<CarouselItem className="px-5 basis-full sm:basis-[250px] md:basis-[350px]" key={item.id}>
+							<Link href={"/product?id=" + item.id} >
 									<FeaturedProductCard
 										img={item.featured_image_url}
 										category={"Cake"}
 										name={item.name}
 										price={item.base_price}
 									/>
-								</CarouselItem>
 							</Link>
+								</CarouselItem>
 						))
 					)}
 				</CarouselContent>

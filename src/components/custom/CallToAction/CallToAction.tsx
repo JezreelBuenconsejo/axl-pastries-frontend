@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 import React from "react";
 import Phone from "~/public/assets/images/cta/phone.png";
 
@@ -17,7 +18,13 @@ const CallToAction: React.FC = () => {
 					src={Phone.src}
 					className="mx-auto h-auto w-full max-w-[363px] md:absolute md:bottom-1/2 md:left-1/2 md:-translate-x-1/2 md:translate-y-[55%]"
 				/>
-				<Button className="hover:bg-main-lightblue my-auto h-fit rounded-xl bg-main-purple px-10 py-3.5 text-xl font-semibold leading-normal text-white transition-all duration-300 hover:border hover:border-black hover:text-black">
+				<Button onClick={() => {
+					toast({
+						title: "Coming Soon!",
+						description: "Currently under development.",
+						duration: 3000
+					});
+				}} className="hover:bg-main-lightblue my-auto h-fit rounded-xl bg-main-purple px-10 py-3.5 text-xl font-semibold leading-normal text-white transition-all duration-300 hover:border hover:border-black hover:text-black">
 					Order Now!
 				</Button>
 			</div>

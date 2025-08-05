@@ -1,7 +1,10 @@
 import { cn } from "@/lib/utils";
 import { useRef, useState, useEffect } from "react";
 import { ListItem } from "./Navbar";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { UserCircle } from "lucide-react";
+import { OrderIcon } from "../icons/icons";
 
 export type BurgerMenuProps = {
 	isOpen: boolean;
@@ -24,6 +27,14 @@ const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
 			window.removeEventListener("resize", handleResize);
 		};
 	}, [props.isOpen]);
+
+	const linkClicked = () => {
+		toast({
+			title: "Coming Soon!",
+			description: "Currently under development.",
+			duration: 3000
+		});
+	};
 	return (
 		<div
 			ref={menuRef}
@@ -32,16 +43,26 @@ const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
 			)}
 			style={{ top: `${props.isOpen ? "100%" : `-${menuHeight}px`}` }}
 		>
-			<div className="mx-auto my-auto flex flex-col items-center justify-center gap-4 text-center">
+			<div className="mx-auto my-auto flex flex-col items-center justify-center gap-4 text-center w-full">
 				{props.menu.map(menu => (
-					<Link
-						href={menu.path}
+					<Button
+						onClick={linkClicked}
+						variant="none"
 						key={menu.path}
 						className="border-b-0 py-1 text-lg font-medium transition-all duration-200 hover:scale-125 hover:text-main-purple"
 					>
 						{menu.list}
-					</Link>
+					</Button>
 				))}
+
+				<div className="flex items-center justify-center gap-4 py-5 border-t w-full">
+					<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
+						<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
+					</Button>
+					<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
+						<UserCircle className="h-12 w-12 stroke-main-purple transition-all duration-150 group-hover:stroke-main-lightBlue" />
+					</Button>
+				</div>
 			</div>
 		</div>
 	);
