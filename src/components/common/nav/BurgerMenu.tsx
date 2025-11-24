@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { UserCircle } from "lucide-react";
 import { OrderIcon } from "../icons/icons";
+import Link from "next/link";
 
 export type BurgerMenuProps = {
 	isOpen: boolean;
 	menu: ListItem[];
+	onNavigate?: () => void;
 };
 
 const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
@@ -45,13 +47,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
 		>
 			<div className="mx-auto my-auto flex flex-col items-center justify-center gap-4 text-center w-full">
 				{props.menu.map(menu => (
-					<Button
-						onClick={linkClicked}
-						variant="none"
-						key={menu.path}
-						className="border-b-0 py-1 text-lg font-medium transition-all duration-200 hover:scale-125 hover:text-main-purple"
-					>
-						{menu.list}
+					<Button asChild variant="none" key={menu.path} className="border-b-0 py-1 text-lg font-medium transition-all duration-200 hover:scale-125 hover:text-main-purple">
+						<Link href={menu.path} onClick={props.onNavigate}>
+							{menu.list}
+						</Link>
 					</Button>
 				))}
 

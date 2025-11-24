@@ -60,11 +60,9 @@ export const Navbar: React.FC<NavbarProps> = props => {
 									key={menu.list}
 									className="scale-100 transition-all duration-200 hover:scale-110"
 								>
-									<Button onClick={linkClicked} variant="none" className="p-0">
-										<NavigationMenuLink className="text-lg border-b-0 py-1 transition-all duration-200 hover:scale-125 hover:text-main-purple">
-											{menu.list}
-										</NavigationMenuLink>
-									</Button>
+									<NavigationMenuLink asChild className="text-lg border-b-0 py-1 transition-all duration-200 hover:scale-125 hover:text-main-purple">
+										<Link href={menu.path}>{menu.list}</Link>
+									</NavigationMenuLink>
 								</NavigationMenuItem>
 							))}
 						</NavigationMenuList>
@@ -89,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = props => {
 					</Button>
 				</div>
 			</nav>
-			<BurgerMenu isOpen={open} menu={props.menu} />
+			<BurgerMenu isOpen={open} menu={props.menu} onNavigate={() => setOpen(false)} />
 		</section>
 	);
 };

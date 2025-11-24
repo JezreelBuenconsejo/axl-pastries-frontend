@@ -1,12 +1,11 @@
 import React from "react";
 import CategoryBG from "~/public/assets/images/category/categoryBG.png";
-import { Url } from "next/dist/shared/lib/router/router";
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 
 type CategoryCardProps = {
-	link: Url;
+	link: string;
 	categoryName: string;
 	description?: string;
 	img?: string;
@@ -33,18 +32,14 @@ const CategoryCard: React.FC<CategoryCardProps> = props => {
 						</p>
 					)}
 					<Button
-					variant="none"
+						variant="none"
+						asChild
 						className="group flex w-full items-center justify-center gap-2 rounded-xl border border-main-purple px-7 py-2.5 text-xl font-semibold text-main-purple transition-all duration-150 hover:bg-main-purple hover:text-white"
-						onClick={() => {
-							toast({
-								title: "Coming Soon!",
-								description: "Currently under development.",
-								duration: 3000
-							});
-						}}
 					>
-						<span>Learn More</span>
-						<ChevronRight className="stroke-main-purple transition-all duration-150 group-hover:stroke-white" />
+						<Link href={props.link} className="flex items-center gap-2">
+							<span>Learn More</span>
+							<ChevronRight className="stroke-main-purple transition-all duration-150 group-hover:stroke-white" />
+						</Link>
 					</Button>
 				</div>
 			</div>
