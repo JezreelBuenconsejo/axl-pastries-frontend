@@ -30,10 +30,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
 		};
 	}, [props.isOpen]);
 
-	const linkClicked = () => {
+	const accountClicked = () => {
 		toast({
-			title: "Coming Soon!",
-			description: "Currently under development.",
+			title: "Account area coming soon",
+			description: "We will let you sign in and track orders here.",
 			duration: 3000
 		});
 	};
@@ -55,10 +55,12 @@ const BurgerMenu: React.FC<BurgerMenuProps> = (props: BurgerMenuProps) => {
 				))}
 
 				<div className="flex items-center justify-center gap-4 py-5 border-t w-full">
-					<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
-						<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
+					<Button asChild variant="none" className="group h-auto p-0">
+						<Link href="/checkout" onClick={props.onNavigate}>
+							<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
+						</Link>
 					</Button>
-					<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
+					<Button onClick={accountClicked} variant="none" className="group h-auto p-0">
 						<UserCircle className="h-12 w-12 stroke-main-purple transition-all duration-150 group-hover:stroke-main-lightBlue" />
 					</Button>
 				</div>

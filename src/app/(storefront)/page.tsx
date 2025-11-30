@@ -15,6 +15,8 @@ import heroBG from "~/public/assets/images/hero/heroBG.png";
 
 export default function Home() {
 	const [products, setProducts] = useState<Cake[] | []>([]);
+	const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/finals05";
+	const heroVideoSrc = `${basePath}/assets/hero_vid.mp4`;
 	const fetchCakes = async () => {
 		try {
 			const cakes = await AxlPastriesClient.getCakes();
@@ -35,6 +37,37 @@ export default function Home() {
 				subtile="We have a large selection of delicious cakes, desserts and pastries. Suitable for both holidays and regular days. Delicious!"
 			/>
 			<Categories />
+			<ContentWrapper className="my-0 mb-24 w-full">
+				<div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 rounded-3xl border border-main-purple/10 bg-gradient-to-br from-main-purple/10 via-white to-main-lightBlue/10 p-6 shadow-lg md:flex-row md:items-center md:gap-10 md:p-10">
+					<div className="space-y-3 md:w-2/5">
+						<p className="text-xs font-semibold uppercase tracking-[0.25em] text-main-purple/80">Inside the kitchen</p>
+						<h2 className="text-3xl font-bold sm:text-4xl">See how your treats come to life</h2>
+						<p className="text-base text-fontColor-gray">
+							Take a quick peek at our bakers crafting the cakes, cupcakes, and pastries you love. Fresh ingredients, careful
+							details, and a lot of heart—all right here in Puerto Princesa City.
+						</p>
+						<ul className="space-y-2 text-sm text-main-purple">
+							<li>• Local ingredients, baked daily</li>
+							<li>• Custom designs and heartfelt messages</li>
+							<li>• Delivery routes focused on Puerto Princesa City</li>
+						</ul>
+					</div>
+					<div className="relative w-full overflow-hidden rounded-3xl border border-white/60 bg-black shadow-2xl md:w-3/5">
+						<div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-main-purple/30 via-transparent to-main-lightBlue/20" />
+						<video
+							className="aspect-video w-full rounded-2xl bg-black object-cover"
+							src={heroVideoSrc}
+							autoPlay
+							muted
+							loop
+							playsInline
+						/>
+						<div className="absolute bottom-4 left-4 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-main-purple shadow-md">
+							Kitchen reel
+						</div>
+					</div>
+				</div>
+			</ContentWrapper>
 			<ContentWrapper className="mb-24 mt-0 flex max-w-[1440px] gap-10 md:flex-row md:gap-5">
 				<ValuesCard
 					title="Good price"

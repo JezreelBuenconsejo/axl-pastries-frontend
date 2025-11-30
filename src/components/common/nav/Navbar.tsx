@@ -13,9 +13,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BurgerMenu from "./BurgerMenu";
-import { UserCircle } from "lucide-react";
 import useAuthStore from "@/app-store/AuthStore";
-import { toast } from "@/hooks/use-toast";
 
 export type ListItem = {
 	list: string;
@@ -35,14 +33,6 @@ export const Navbar: React.FC<NavbarProps> = props => {
 			setAuth(token, userName);
 		}
 	}, [setAuth, isLoggedIn]);
-
-	const linkClicked = () => {
-		toast({
-			title: "Coming Soon!",
-			description: "Currently under development.",
-			duration: 3000,
-		});
-	}
 	return (
 		<section className="relative z-[2] font-montserrat">
 			<nav className="relative z-10 mx-auto flex max-w-[1440px] justify-between bg-white p-6 px-5 lg:px-20">
@@ -68,12 +58,16 @@ export const Navbar: React.FC<NavbarProps> = props => {
 						</NavigationMenuList>
 					</NavigationMenu>
 					<div className="items-center justify-between gap-4 hidden sm:flex">
-						<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
-							<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
+						<Button asChild variant="none" className="group h-auto p-0">
+							<Link href="/checkout">
+								<OrderIcon class="fill-main-purple stroke-main-purple transition-all duration-150 group-hover:fill-main-lightBlue group-hover:stroke-main-lightBlue" />
+							</Link>
 						</Button>
-						<Button onClick={linkClicked} variant="none" className="group h-auto p-0">
+						{/**
+						<Button onClick={accountClicked} variant="none" className="group h-auto p-0">
 							<UserCircle className="h-12 w-12 stroke-main-purple transition-all duration-150 group-hover:stroke-main-lightBlue" />
 						</Button>
+						 */}
 					</div>
 
 					<Button
