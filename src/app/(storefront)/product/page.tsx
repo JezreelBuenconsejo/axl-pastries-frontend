@@ -3,9 +3,11 @@
 import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGetProductDetails } from "@/hooks/useProductDetails";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ShoppingCart } from "lucide-react";
 
 const SIZE_OPTIONS = [
 	{ factor: 1, label: "6 inches" },
@@ -14,9 +16,20 @@ const SIZE_OPTIONS = [
 	{ factor: 3, label: "10 inches" }
 ];
 
+type CartItem = {
+	productId: number;
+	name: string;
+	sizeLabel: string;
+	sizeFactor: number;
+	unitPrice: number;
+	quantity: number;
+	image?: string;
+};
+
 const ProductPageComponent = () => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
+	const { toast } = useToast();
 
 	// Get product ID from query parameters
 	const productId = useMemo(() => {
@@ -37,6 +50,10 @@ const ProductPageComponent = () => {
 	// Calculate price
 	const basePrice = useMemo(() => product?.base_price ?? 0, [product]);
 	const price = useMemo(() => basePrice * size.factor * quantity, [basePrice, size.factor, quantity]);
+	const images: string[] = useMemo(
+		() => [...(product?.featured_image_url ? [product.featured_image_url] : []), ...(product?.images ?? [])],
+		[product]
+	);
 
 	// Handlers for size and quantity
 	const handleSizeChange = (factor: number) => {
@@ -46,15 +63,62 @@ const ProductPageComponent = () => {
 
 	const handleQuantityChange = (newQuantity: number) => setQuantity(newQuantity);
 
+	const handleAddToCart = () => {
+		if (!product?.id || !product.name) {
+			toast({
+				title: "Unable to add to cart",
+				description: "This product is unavailable right now."
+			});
+			return;
+		}
+
+		const unitPrice = basePrice * size.factor;
+		const cartItem: CartItem = {
+			productId: product.id,
+			name: product.name,
+			sizeLabel: size.label,
+			sizeFactor: size.factor,
+			unitPrice,
+			quantity,
+			image: images[0]
+		};
+
+		try {
+			const existingCart: CartItem[] = JSON.parse(localStorage.getItem("cart") ?? "[]");
+			const existingIndex = existingCart.findIndex(
+				item => item.productId === cartItem.productId && item.sizeFactor === cartItem.sizeFactor
+			);
+
+			let updatedCart: CartItem[];
+			if (existingIndex > -1) {
+				const updatedItem = {
+					...existingCart[existingIndex],
+					quantity: existingCart[existingIndex].quantity + cartItem.quantity
+				};
+				updatedCart = [...existingCart];
+				updatedCart[existingIndex] = updatedItem;
+			} else {
+				updatedCart = [...existingCart, cartItem];
+			}
+
+			localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+			toast({
+				title: "Added to cart",
+				description: `${cartItem.name} (${cartItem.sizeLabel}) × ${cartItem.quantity} added.`
+			});
+		} catch (err) {
+			console.error("Failed to update cart", err);
+			toast({
+				title: "Something went wrong",
+				description: "Please try again in a moment."
+			});
+		}
+	};
+
 	// Loading and error handling
 	if (loading) return <div className="min-h-[calc(100vh-455px)]">Loading...</div>;
 	if (error) return <div className="min-h-[calc(100vh-455px)]">Error: {error}</div>;
-
-	// Product images
-	const images: string[] = [
-		...(product?.featured_image_url ? [product.featured_image_url] : []),
-		...(product?.images ?? [])
-	];
 
 	return (
 		<section className="min-h-[calc(100vh-455px)] w-full p-6 px-5 lg:px-20">
@@ -117,8 +181,14 @@ const ProductPageComponent = () => {
 						</Button>
 					</div>
 
-					{/* Price */}
-					<div className="text-xl font-bold">Price: P{price}</div>
+					{/* Price and add to cart */}
+					<div className="flex flex-col gap-3">
+						<div className="text-xl font-bold">Price: P{price}</div>
+						<Button className="w-full sm:w-fit" onClick={handleAddToCart}>
+							<ShoppingCart className="mr-2 h-4 w-4" />
+							Add to cart
+						</Button>
+					</div>
 				</div>
 			</div>
 		</section>
