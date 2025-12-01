@@ -15,8 +15,7 @@ import heroBG from "~/public/assets/images/hero/heroBG.png";
 
 export default function Home() {
 	const [products, setProducts] = useState<Cake[] | []>([]);
-	const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/finals05";
-	const heroVideoSrc = `${basePath}/assets/hero_vid.mp4`;
+	const heroVideoSrc = `./assets/hero_vid.mp4`;
 	const fetchCakes = async () => {
 		try {
 			const cakes = await AxlPastriesClient.getCakes();
