@@ -4,6 +4,7 @@ import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGetProductDetails } from "@/hooks/useProductDetails";
 import { useToast } from "@/hooks/use-toast";
+import { useCartStore, CartItem } from "@/app-store/CartStore";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,20 +17,11 @@ const SIZE_OPTIONS = [
 	{ factor: 3, label: "10 inches" }
 ];
 
-type CartItem = {
-	productId: number;
-	name: string;
-	sizeLabel: string;
-	sizeFactor: number;
-	unitPrice: number;
-	quantity: number;
-	image?: string;
-};
-
 const ProductPageComponent = () => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const { toast } = useToast();
+	const addItem = useCartStore(state => state.addItem);
 
 	// Get product ID from query parameters
 	const productId = useMemo(() => {
@@ -84,24 +76,7 @@ const ProductPageComponent = () => {
 		};
 
 		try {
-			const existingCart: CartItem[] = JSON.parse(localStorage.getItem("cart") ?? "[]");
-			const existingIndex = existingCart.findIndex(
-				item => item.productId === cartItem.productId && item.sizeFactor === cartItem.sizeFactor
-			);
-
-			let updatedCart: CartItem[];
-			if (existingIndex > -1) {
-				const updatedItem = {
-					...existingCart[existingIndex],
-					quantity: existingCart[existingIndex].quantity + cartItem.quantity
-				};
-				updatedCart = [...existingCart];
-				updatedCart[existingIndex] = updatedItem;
-			} else {
-				updatedCart = [...existingCart, cartItem];
-			}
-
-			localStorage.setItem("cart", JSON.stringify(updatedCart));
+			addItem(cartItem);
 
 			toast({
 				title: "Added to cart",

@@ -1,33 +1,22 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, MapPin, ReceiptText, Truck } from "lucide-react";
 import Link from "next/link";
-
-const orderItems = [
-	{
-		name: "Black Forest Cake",
-		details: "8\" round",
-		price: 800,
-		qty: 1
-	},
-	{
-		name: "Vanilla Cream Cupcake",
-		details: "Box of 6 · assorted sprinkles",
-		price: 200,
-		qty: 1
-	},
-	{
-		name: "Dream Cake",
-		details: "Bento Size",
-		price: 180,
-		qty: 1
-	}
-];
+import { useMemo } from "react";
+import { useCartStore } from "@/app-store/CartStore";
 
 const formatPeso = (value: number) => `₱${value.toLocaleString("en-PH")}`;
 
 export default function OrderCompletePage() {
-	const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-	const deliveryFee = 120;
+	const cartItems = useCartStore(state => state.items);
+
+	const subtotal = useMemo(
+		() => cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
+		[cartItems]
+	);
+	const isCartEmpty = cartItems.length === 0;
+	const deliveryFee = isCartEmpty ? 0 : 120;
 	const total = subtotal + deliveryFee;
 
 	return (
@@ -95,16 +84,28 @@ export default function OrderCompletePage() {
 								<ReceiptText className="h-5 w-5 text-main-purple" />
 							</div>
 							<div className="mt-4 space-y-4">
-								{orderItems.map(item => (
-									<div key={item.name} className="flex items-start justify-between rounded-xl bg-neutral-50 px-4 py-3">
-										<div className="space-y-1">
-											<p className="text-sm font-semibold">{item.name}</p>
-											<p className="text-xs text-fontColor-gray">{item.details}</p>
-											<p className="text-xs text-fontColor-gray">Qty: {item.qty}</p>
-										</div>
-										<p className="text-sm font-semibold text-main-purple">{formatPeso(item.price * item.qty)}</p>
+								{isCartEmpty ? (
+									<div className="rounded-xl bg-neutral-50 px-4 py-3 text-sm text-fontColor-gray">
+										Your cart was empty, so this summary is a demo preview.
 									</div>
-								))}
+								) : (
+									cartItems.map(item => (
+										<div
+											key={`${item.productId}-${item.sizeFactor}`}
+											className="flex items-start justify-between rounded-xl bg-neutral-50 px-4 py-3"
+										>
+											<div className="space-y-1">
+												<p className="text-sm font-semibold">{item.name}</p>
+												<p className="text-xs text-fontColor-gray">{item.sizeLabel}</p>
+												{item.flavor && <p className="text-xs text-fontColor-gray">{item.flavor}</p>}
+												<p className="text-xs text-fontColor-gray">Qty: {item.quantity}</p>
+											</div>
+											<p className="text-sm font-semibold text-main-purple">
+												{formatPeso(item.unitPrice * item.quantity)}
+											</p>
+										</div>
+									))
+								)}
 							</div>
 							<div className="mt-6 space-y-2 text-sm text-gray-700">
 								<div className="flex items-center justify-between">

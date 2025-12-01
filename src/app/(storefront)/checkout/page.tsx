@@ -6,44 +6,26 @@ import { cn } from "@/lib/utils";
 import { CheckCircle2, Clock3, MapPin, Receipt, Truck } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useCartStore } from "@/app-store/CartStore";
 
 type Fulfillment = "delivery" | "pickup";
-
-const orderItems = [
-	{
-		name: "Black Forest Cake",
-		details: "8\" round",
-		price: 800,
-		qty: 1
-	},
-	{
-		name: "Vanilla Cream Cupcake",
-		details: "Box of 6 · assorted sprinkles",
-		price: 200,
-		qty: 1
-	},
-	{
-		name: "Dream Cake",
-		details: "Bento Size",
-		price: 180,
-		qty: 1
-	}
-];
 
 const formatPeso = (value: number) => `₱${value.toLocaleString("en-PH")}`;
 
 export default function CheckoutPage() {
+	const cartItems = useCartStore(state => state.items);
 	const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
-	const deliveryFee = fulfillment === "delivery" ? 120 : 0;
+	const isCartEmpty = cartItems.length === 0;
+	const deliveryFee = isCartEmpty ? 0 : fulfillment === "delivery" ? 120 : 0;
 
 	const totals = useMemo(() => {
-		const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+		const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 		return {
 			subtotal,
 			deliveryFee,
 			total: subtotal + deliveryFee
 		};
-	}, [deliveryFee]);
+	}, [deliveryFee, cartItems]);
 
 	return (
 		<section className="w-full bg-gradient-to-br from-main-purple/5 via-white to-main-lightBlue/10">
@@ -204,16 +186,28 @@ export default function CheckoutPage() {
 									<Receipt className="h-5 w-5 text-main-purple/70" />
 								</div>
 								<div className="mt-4 space-y-4">
-									{orderItems.map(item => (
-										<div key={item.name} className="flex items-start justify-between rounded-xl bg-neutral-50 px-4 py-3">
-											<div className="space-y-1">
-												<p className="text-sm font-semibold">{item.name}</p>
-												<p className="text-xs text-fontColor-gray">{item.details}</p>
-												<p className="text-xs text-fontColor-gray">Qty: {item.qty}</p>
-											</div>
-											<p className="text-sm font-semibold text-main-purple">{formatPeso(item.price * item.qty)}</p>
+									{isCartEmpty ? (
+										<div className="rounded-xl bg-neutral-50 px-4 py-3 text-sm text-fontColor-gray">
+											Your cart is empty. Add a cake or dessert to proceed.
 										</div>
-									))}
+									) : (
+										cartItems.map(item => (
+											<div
+												key={`${item.productId}-${item.sizeFactor}`}
+												className="flex items-start justify-between rounded-xl bg-neutral-50 px-4 py-3"
+											>
+												<div className="space-y-1">
+													<p className="text-sm font-semibold">{item.name}</p>
+													<p className="text-xs text-fontColor-gray">{item.sizeLabel}</p>
+													{item.flavor && <p className="text-xs text-fontColor-gray">{item.flavor}</p>}
+													<p className="text-xs text-fontColor-gray">Qty: {item.quantity}</p>
+												</div>
+												<p className="text-sm font-semibold text-main-purple">
+													{formatPeso(item.unitPrice * item.quantity)}
+												</p>
+											</div>
+										))
+									)}
 								</div>
 								<div className="mt-6 space-y-2 text-sm text-gray-700">
 									<div className="flex items-center justify-between">
@@ -229,8 +223,8 @@ export default function CheckoutPage() {
 										<span>{formatPeso(totals.total)}</span>
 									</div>
 								</div>
-								<Button asChild className="mt-6 w-full justify-center">
-									<Link href="/order-complete">Complete order (demo)</Link>
+								<Button asChild className="mt-6 w-full justify-center" disabled={isCartEmpty}>
+									<Link href={isCartEmpty ? "/cakes" : "/order-complete"}>{isCartEmpty ? "Add items to continue" : "Complete order (demo)"}</Link>
 								</Button>
 								<p className="mt-3 text-center text-xs text-fontColor-gray">
 									This flow is a static preview—no payment will be collected.
